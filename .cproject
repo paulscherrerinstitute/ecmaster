@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+	<storageModule moduleId="org.eclipse.cdt.core.settings">
+		<cconfiguration id="0.1434552634">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="0.1434552634" moduleId="org.eclipse.cdt.core.settings" name="Default">
+				<externalSettings/>
+				<extensions>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.VCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration buildProperties="" description="" id="0.1434552634" name="Default" parent="org.eclipse.cdt.build.core.prefbase.cfg">
+					<folderInfo id="0.1434552634." name="/" resourcePath="">
+						<toolChain id="org.eclipse.cdt.build.core.prefbase.toolchain.167983014" name="No ToolChain" resourceTypeBasedDiscovery="false" superClass="org.eclipse.cdt.build.core.prefbase.toolchain">
+							<targetPlatform id="org.eclipse.cdt.build.core.prefbase.toolchain.167983014.467060530" name=""/>
+							<builder id="org.eclipse.cdt.build.core.settings.default.builder.1722986910" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="org.eclipse.cdt.build.core.settings.default.builder"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.libs.57610947" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.810426487" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.1409841799" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
+									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/gfa-linux-3.6.11.5-rt37/include/"/>
+									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/gfa-linux-3.6.11.5-rt37/arch/"/>
+									<listOptionValue builtIn="false" value="/net/gfa-eldk/export/home/eldk-5.2/powerpc-e500v2/sysroots/i686-eldk-linux/usr/bin/ppce500v2-linux-gnuspe/../../lib/ppce500v2-linux-gnuspe/gcc/powerpc-linux-gnuspe/4.6.4/include"/>
+									<listOptionValue builtIn="false" value="/net/gfa-eldk/export/home/eldk-5.2/powerpc-e500v2/sysroots/i686-eldk-linux/usr/bin/ppce500v2-linux-gnuspe/../../lib/ppce500v2-linux-gnuspe/gcc/powerpc-linux-gnuspe/4.6.4/include-fixed"/>
+									<listOptionValue builtIn="false" value="/afs/psi.ch/group/8431/dmm/cvs/G/DRV/ethercatmaster/2.0/master/"/>
+									<listOptionValue builtIn="false" value="/afs/psi.ch/group/8431/dmm/cvs/G/DRV/ethercatmaster/2.0/include"/>
+									<listOptionValue builtIn="false" value="/opt/eldk-5.2/powerpc-e500v2/sysroots/ppce500v2-linux-gnuspe/usr/include/"/>
+									<listOptionValue builtIn="false" value="/usr/local/epics/base-3.14.12/include/os/Linux"/>
+									<listOptionValue builtIn="false" value="/usr/local/epics/base-3.14.12/include"/>
+									<listOptionValue builtIn="false" value="/opt/eldk-5.2/ethercat-1.5.1/master"/>
+									<listOptionValue builtIn="false" value="/usr/include/libxml2"/>
+									<listOptionValue builtIn="false" value="/usr/local/epics/base-3.14.12/src/libCom/ellLib"/>
+									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/gfa-linux-3.6.11.5-rt37/arch/powerpc/"/>
+									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/gfa-linux-3.6.11.5-rt37/include/asm-generic"/>
+									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/gfa-linux-3.6.11.5-rt37/arch/powerpc/include"/>
+								</option>
+								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.10711676" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="__GNUC__"/>
+									<listOptionValue builtIn="false" value="__KERNEL__"/>
+									<listOptionValue builtIn="false" value="CONFIG_HZ=1000"/>
+								</option>
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.894013582" languageId="org.eclipse.cdt.core.assembly" languageName="Assembly" sourceContentType="org.eclipse.cdt.core.asmSource" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.1799918846" name="GNU C++" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.2107618870" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
+									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/gfa-linux-3.6.11.5-rt37/include/"/>
+									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/gfa-linux-3.6.11.5-rt37/arch/"/>
+									<listOptionValue builtIn="false" value="/net/gfa-eldk/export/home/eldk-5.2/powerpc-e500v2/sysroots/i686-eldk-linux/usr/bin/ppce500v2-linux-gnuspe/../../lib/ppce500v2-linux-gnuspe/gcc/powerpc-linux-gnuspe/4.6.4/include"/>
+									<listOptionValue builtIn="false" value="/net/gfa-eldk/export/home/eldk-5.2/powerpc-e500v2/sysroots/i686-eldk-linux/usr/bin/ppce500v2-linux-gnuspe/../../lib/ppce500v2-linux-gnuspe/gcc/powerpc-linux-gnuspe/4.6.4/include-fixed"/>
+									<listOptionValue builtIn="false" value="/afs/psi.ch/group/8431/dmm/cvs/G/DRV/ethercatmaster/2.0/master/"/>
+									<listOptionValue builtIn="false" value="/afs/psi.ch/group/8431/dmm/cvs/G/DRV/ethercatmaster/2.0/include"/>
+									<listOptionValue builtIn="false" value="/opt/eldk-5.2/powerpc-e500v2/sysroots/ppce500v2-linux-gnuspe/usr/include/"/>
+									<listOptionValue builtIn="false" value="/usr/local/epics/base-3.14.12/include/os/Linux"/>
+									<listOptionValue builtIn="false" value="/usr/local/epics/base-3.14.12/include"/>
+									<listOptionValue builtIn="false" value="/opt/eldk-5.2/ethercat-1.5.1/master"/>
+									<listOptionValue builtIn="false" value="/usr/include/libxml2"/>
+									<listOptionValue builtIn="false" value="/usr/local/epics/base-3.14.12/src/libCom/ellLib"/>
+									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/gfa-linux-3.6.11.5-rt37/arch/powerpc/"/>
+									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/gfa-linux-3.6.11.5-rt37/include/asm-generic"/>
+									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/gfa-linux-3.6.11.5-rt37/arch/powerpc/include"/>
+								</option>
+								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.920408379" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="__GNUC__"/>
+									<listOptionValue builtIn="false" value="__KERNEL__"/>
+									<listOptionValue builtIn="false" value="CONFIG_HZ=1000"/>
+								</option>
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.2122173606" languageId="org.eclipse.cdt.core.g++" languageName="GNU C++" sourceContentType="org.eclipse.cdt.core.cxxSource,org.eclipse.cdt.core.cxxHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+							<tool id="org.eclipse.cdt.build.core.settings.holder.1513123162" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder">
+								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.1219481951" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
+									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/gfa-linux-3.6.11.5-rt37/include/"/>
+									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/gfa-linux-3.6.11.5-rt37/arch/"/>
+									<listOptionValue builtIn="false" value="/net/gfa-eldk/export/home/eldk-5.2/powerpc-e500v2/sysroots/i686-eldk-linux/usr/bin/ppce500v2-linux-gnuspe/../../lib/ppce500v2-linux-gnuspe/gcc/powerpc-linux-gnuspe/4.6.4/include"/>
+									<listOptionValue builtIn="false" value="/net/gfa-eldk/export/home/eldk-5.2/powerpc-e500v2/sysroots/i686-eldk-linux/usr/bin/ppce500v2-linux-gnuspe/../../lib/ppce500v2-linux-gnuspe/gcc/powerpc-linux-gnuspe/4.6.4/include-fixed"/>
+									<listOptionValue builtIn="false" value="/afs/psi.ch/group/8431/dmm/cvs/G/DRV/ethercatmaster/2.0/master/"/>
+									<listOptionValue builtIn="false" value="/afs/psi.ch/group/8431/dmm/cvs/G/DRV/ethercatmaster/2.0/include"/>
+									<listOptionValue builtIn="false" value="/opt/eldk-5.2/powerpc-e500v2/sysroots/ppce500v2-linux-gnuspe/usr/include/"/>
+									<listOptionValue builtIn="false" value="/usr/local/epics/base-3.14.12/include/os/Linux"/>
+									<listOptionValue builtIn="false" value="/usr/local/epics/base-3.14.12/include"/>
+									<listOptionValue builtIn="false" value="/opt/eldk-5.2/ethercat-1.5.1/master"/>
+									<listOptionValue builtIn="false" value="/usr/include/libxml2"/>
+									<listOptionValue builtIn="false" value="/usr/local/epics/base-3.14.12/src/libCom/ellLib"/>
+									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/gfa-linux-3.6.11.5-rt37/arch/powerpc/"/>
+									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/gfa-linux-3.6.11.5-rt37/include/asm-generic"/>
+									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/gfa-linux-3.6.11.5-rt37/arch/powerpc/include"/>
+								</option>
+								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.898532192" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="__GNUC__"/>
+									<listOptionValue builtIn="false" value="__KERNEL__"/>
+									<listOptionValue builtIn="false" value="CONFIG_HZ=1000"/>
+								</option>
+								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.1722739703" languageId="org.eclipse.cdt.core.gcc" languageName="GNU C" sourceContentType="org.eclipse.cdt.core.cSource,org.eclipse.cdt.core.cHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+	</storageModule>
+	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+		<project id="ecmaster.null.1344395108" name="ecmaster"/>
+	</storageModule>
+	<storageModule moduleId="scannerConfiguration">
+		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		<scannerConfigBuildInfo instanceId="0.1434552634">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
+</cproject>
