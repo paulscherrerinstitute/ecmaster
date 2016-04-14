@@ -1,12 +1,15 @@
 #!/bin/bash
 
-# ./build.sh -a architecture [-m module_version] [-k kernel_version] [-c]
+# ./build.sh [-a architecture] [-m module_version] [-k kernel_version] [-c]
 #            architecture (-a): ifc | sl6
 #          module_version (-m): n.m | test 
 #          kernel_version (-k): 3.6.11.5          (ifc, PPC)
 #                               3.6.11.5-rt37     (ifc, PPC)     <-- default for architecture ifc
 #                               2.6.32-573.3.1    (SL6, x86_64)  <-- default for architecture sl6
-#               configure: (-c) execute configure (needed when changing architecture)
+#               configure (-c): execute configure (needed when changing architecture)
+#
+# Note: Only one architecture (ifc or sl6) can be active ("configured") at any given time
+#       Also, configure has to be executed at least once for the given architecture
 #
 # 16.03.2016 Dragutin Maier-Manojlovic (PSI)
 #
@@ -56,13 +59,17 @@ while getopts a:m:k:c opt; do
     \?)
         echo "Invalid option: -$OPTARG" >&2
         echo "-------------------------------------------------------------------------------"
-        echo "Usage: `basename $0` -a Arch [-v module_Version] [-k Kernel_version] [-c] "
-        echo "                     architecture: [ifc|sl6]                      "
-        echo "                   module_version: [n.m|test]                     "
-        echo "                   kernel_version: 3.6.11.5          (ifc, PPC)   "
-        echo "                                   3.6.11.5-rt37     (ifc, PPC)   "
-        echo "                                   2.6.32-573.3.1    (SL6, x86_64)"
-        echo "                        configure: execute configure (needed when changing architecture)"
+        echo "Usage: `basename $0` [-a architecture] [-m module_version] [-k kernel_version] [-c] "
+        echo " "
+        echo "                     architecture (-a): [ifc|sl6]                      "
+        echo "                   module_version (-m): [n.m|test]        (n.m = 2.1, 2.2, etc)"
+        echo "                   kernel_version (-k): 3.6.11.5          (ifc, PPC)   "
+        echo "                                        3.6.11.5-rt37     (ifc, PPC)   "
+        echo "                                        2.6.32-573.3.1    (SL6, x86_64)"
+        echo "                        configure (-c): execute configure (needed when changing architecture)"
+        echo " "
+        echo "Note: Only one architecture (ifc or sl6) can be active ("configured") at any given time"
+        echo "      Also, configure has to be executed at least once for the given architecture"
         echo "-------------------------------------------------------------------------------"
         exit 1
       ;;
