@@ -42,6 +42,7 @@
 #include "voe_handler.h"
 #include "ethernet.h"
 #include "ioctl.h"
+#include "datagram_pair.h"
 
 /** Set to 1 to enable ioctl() latency tracing.
  *
@@ -1809,6 +1810,49 @@ static ATTRIBUTES int ec_ioctl_set_send_interval(
 
     up(&master->master_sem);
     return 0;
+}
+
+
+
+/*****************************************************************************/
+
+/** Check whether a domain has received all its outstanding frames
+ *
+ * \return Zero on success, otherwise a negative error code.
+ */
+static ATTRIBUTES int ec_ioctl_psi_dom_received(
+        ec_master_t *master, /**< EtherCAT master. */
+        void *arg, /**< ioctl() argument. */
+        ec_ioctl_context_t *ctx /**< Private data structure of file handle. */
+        )
+{
+	int domain_nr;
+	ec_datagram_pair_t *datagram_pair;
+	ec_domain_t *domain;
+
+    if( copy_from_user( &domain_nr, (void __user *)arg, sizeof(domain_nr) ))
+        return -EFAULT;
+
+	if (down_interruptible(&master->master_sem))
+        return -EINTR;
+
+    if( !(domain = ec_master_find_domain( master, domain_nr) ))
+	{
+        up(&master->master_sem);
+        EC_MASTER_ERR(master, "Domain %u does not exist!\n", domain_nr);
+        return -EINVAL;
+    }
+
+    up(&master->master_sem);
+
+
+    list_for_each_entry( datagram_pair, &domain->datagram_pairs, list)
+    {
+        if( (&(datagram_pair->datagrams[0]))->state != EC_DATAGRAM_RECEIVED )
+            return 0;
+    }
+
+    return 1;
 }
 
 /*****************************************************************************/
@@ -4586,6 +4630,9 @@ long EC_IOCTL(
             }
             ret = ec_ioctl_set_send_interval(master, arg, ctx);
             break;
+        case EC_IOCTL_PSI_DOM_RECEIVED:
+        	ret = ec_ioctl_psi_dom_received( master, arg, ctx );
+        	break;
         default:
             ret = -ENOTTY;
             break;

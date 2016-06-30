@@ -2024,6 +2024,15 @@ void ecrt_reg_request_read(
         size_t size /**< Size to write. */
         );
 
+
+/** Have all packets for a domain been received?
+ *
+ */
+int ecrt_domain_received(
+		ec_domain_t *domain /**< Domain */
+		);
+
+
 /*****************************************************************************/
 
 #ifdef __cplusplus

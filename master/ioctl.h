@@ -153,6 +153,9 @@
 #define EC_IOCTL_VOE_DATA             EC_IOWR(0x57, ec_ioctl_voe_t)
 #define EC_IOCTL_SET_SEND_INTERVAL     EC_IOW(0x58, size_t)
 
+#define EC_IOCTL_PSI_DOM_RECEIVED     EC_IOWR(0xa0, size_t)
+
+
 /*****************************************************************************/
 
 #define EC_IOCTL_STRING_SIZE 64

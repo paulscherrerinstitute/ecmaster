@@ -30,7 +30,7 @@ while getopts a:m:k:c opt; do
   case $opt in
     a)
       # architecture
-      if [ ! $OPTARG == 'ifc' ] && [ ! $OPTARG == 'sl6' ] 
+      if [ "$OPTARG" != "ifc" ] && [ "$OPTARG" != "sl6" ] 
       then
         echo "ERROR: Architecture $OPTARG is not (yet) supported!" >&2
         exit 1
@@ -41,7 +41,7 @@ while getopts a:m:k:c opt; do
     m)
       # module version
       ARG_MODVER=$OPTARG
-      if [ $ARG_MODVER == 'test' ] || [ $ARG_MODVER == 'TEST' ]; then
+      if [ "$ARG_MODVER" == "test" ] || [ "$ARG_MODVER" == "TEST" ]; then
         TEST=1
       fi 
       echo "Module version $ARG_MODVER"
@@ -79,11 +79,14 @@ done
 #
 # =========================================================================================================
 #
-if [ $ARG_ARCH == 'ifc' ]; then
+if [ "$ARG_ARCH" == "ifc" ]; then
     KERNEL_SRC=/opt/eldk-5.2/kernel/gfa-linux-$ARG_KERNVER
     . /opt/eldk-5.2/powerpc-e500v2/environment-setup-ppce500v2-linux-gnuspe
     CROSS_COMPILE=$OECORE_NATIVE_SYSROOT/usr/libexec/ppce500v2-linux-gnuspe/gcc/powerpc-linux-gnuspe/4.6.4/
 
+    echo -e "----------------------------------------------"
+    echo -e "IFC 1"
+    echo -e "----------------------------------------------"
     if [ $EXEC_CFG == 1 ]; then
         dye make clean
         dye ./configure --host=powerpc-linux-gnuspe --with-linux-dir=$KERNEL_SRC \
@@ -91,16 +94,22 @@ if [ $ARG_ARCH == 'ifc' ]; then
             --prefix=/usr/local --enable-hrtimer --enable-debug-if --enable-debug-ring
     fi
 
+    echo -e "----------------------------------------------"
+    echo -e "IFC"
+    echo -e "----------------------------------------------"
     dye make all modules ARCH=powerpc CROSS_COMPILE=$CROSS_COMPILE
     RETVAL=$?
-    if [ ! $RETVAL == 0 ]; then
+    if [ $RETVAL != 0 ]; then
       echo "make failed"
       exit 1
     fi
 fi
 
-if [ $ARG_ARCH == 'sl6' ]; then
-    KERNEL_SRC=/usr/src/kernels/$ARG_KERNVER.el6.x86_64
+if [ "$ARG_ARCH" == "sl6" ]; then
+    KERNEL_SRC=/usr/src/kernels/$ARG_KERNVER.el6.i686
+    echo -e "----------------------------------------------"
+    echo -e "SL6 1"
+    echo -e "----------------------------------------------"
      
     if [ $EXEC_CFG == 1 ]; then
         dye make clean
@@ -109,9 +118,12 @@ if [ $ARG_ARCH == 'sl6' ]; then
             --prefix=/usr/local --enable-hrtimer --enable-debug-if --enable-debug-ring
     fi
     
+    echo -e "----------------------------------------------"
+    echo -e "SL6"
+    echo -e "----------------------------------------------"
     dye make all modules ARCH=x86_64
     RETVAL=$?
-    if [ ! $RETVAL == 0 ]; then
+    if [ $RETVAL != 0 ]; then
       echo "make failed"
       exit 1
     fi
@@ -120,16 +132,22 @@ fi
 #
 # =========================================================================================================
 #
+echo -e "-----------------------------------------------------------------------------"
+echo -e
+echo -e " Architecture $RED$BOLD$ARG_ARCH$NC, Kernel ver. $RED$BOLD$ARG_KERNVER$NC, Master ver. $RED$BOLD$ARG_MODVER$NC"
+echo -e
+echo -e "-----------------------------------------------------------------------------"
+
 
 ROOT_TARGET_DIR=/ioc/modules/ecat2
 HOSTNAME=`hostname`
 
 if [ ! -d "$ROOT_TARGET_DIR" ]; then
-  echo "Directory ${BOLD}$ROOT_TARGET_DIR#{NC} does not exist here ($HOSTNAME)."
+  echo "Directory $BOLD$ROOT_TARGET_DIR$NC does not exist here ($HOSTNAME)."
+  exit 1
 fi
 
 
-echo "copying..."
 
 EC_LIB=lib
 DRV_MASTER=ec_master.ko
@@ -141,40 +159,55 @@ DRV_ETHERNET_LONG=ec_generic-${ARG_MODVER}.ko
 DRV_LIBETH1_LONG=libethercat-${ARG_MODVER}.so.1.0.0
 DRV_LIBETH2_LONG=libethercat-${ARG_MODVER}.a
 CURR_DIR=`pwd`
+CURR_USER=`whoami`
 
-cd $ROOT_TARGET_DIR
+#------------ SERVERS
+server_array=( gfalc sf-lc trfcblc finlc )
 
-if [ ! -d $ARG_ARCH ]; then
-    mkdir $ARG_ARCH
-fi 
-if [ ! -d $ARG_ARCH/${ARG_KERNVER} ]; then
-    mkdir $ARG_ARCH/${ARG_KERNVER}
-fi 
-if [ ! -d $ARG_ARCH/${EC_LIB} ]; then
-    mkdir $ARG_ARCH/${EC_LIB}
-fi 
+for SERVER in "${server_array[@]}"
+do
+    echo "======================================="
+    echo -e "Installing EtherCAT Master (target $BOLD$ARG_ARCH$NC $BOLD$ARG_KERNVER$NC, version $BOLD$ARG_MODVER$NC) to $RED$BOLD$SERVER$NC"
+    USER_AT_SERVER=${CURR_USER}@${SERVER}
+    ROOT=${USER_AT_SERVER}:$ROOT_TARGET_DIR
+    
+    echo "Creating directories..."
+    ssh $USER_AT_SERVER "mkdir -p ${ROOT_TARGET_DIR}/${ARG_ARCH}"
+    ssh $USER_AT_SERVER "mkdir -p ${ROOT_TARGET_DIR}/${ARG_ARCH}/${ARG_KERNVER}"
+    ssh $USER_AT_SERVER "mkdir -p ${ROOT_TARGET_DIR}/${ARG_ARCH}/${EC_LIB}"
+    ssh $USER_AT_SERVER "mkdir -p ${ROOT_TARGET_DIR}/bin"
+    echo "...done"
+    
+    echo "Copying kernel modules..."
+    scp -r ${CURR_DIR}/master/ec_master.ko              ${ROOT}/${ARG_ARCH}/${ARG_KERNVER}/${DRV_MASTER_LONG}
+    scp -r ${CURR_DIR}/devices/ec_generic.ko            ${ROOT}/${ARG_ARCH}/${ARG_KERNVER}/${DRV_ETHERNET_LONG}
+    echo "...done"
+    echo "Copying libraries..."
+    scp -r ${CURR_DIR}/lib/.libs/libethercat.so.1.0.0   ${ROOT}/${ARG_ARCH}/${EC_LIB}/${DRV_LIBETH1_LONG}
+    scp -r ${CURR_DIR}/lib/.libs/libethercat.a          ${ROOT}/${ARG_ARCH}/${EC_LIB}/${DRV_LIBETH2_LONG}
+    echo "...done"
+    echo "Copying ec script..."
+    scp -r ${CURR_DIR}/ec   ${ROOT}/bin/
+    echo "...done"
+    
+    if [ ${TEST} = 0 ]
+    then
+        echo "Creating links..."
+        ssh $USER_AT_SERVER "ln -f -s ${ROOT_TARGET_DIR}/${ARG_ARCH}/${ARG_KERNVER}/${DRV_MASTER_LONG}      ${ROOT_TARGET_DIR}/${ARG_ARCH}/${ARG_KERNVER}/${DRV_MASTER}"
+        ssh $USER_AT_SERVER "ln -f -s ${ROOT_TARGET_DIR}/${ARG_ARCH}/${ARG_KERNVER}/${DRV_ETHERNET_LONG}    ${ROOT_TARGET_DIR}/${ARG_ARCH}/${ARG_KERNVER}/${DRV_ETHERNET}"
+        ssh $USER_AT_SERVER "ln -f -s ${ROOT_TARGET_DIR}/${ARG_ARCH}/${EC_LIB}/${DRV_LIBETH1_LONG}          ${ROOT_TARGET_DIR}/${ARG_ARCH}/${EC_LIB}/${DRV_LIBETH1}"
+        ssh $USER_AT_SERVER "ln -f -s ${ROOT_TARGET_DIR}/${ARG_ARCH}/${EC_LIB}/${DRV_LIBETH1_LONG}          ${ROOT_TARGET_DIR}/${ARG_ARCH}/${EC_LIB}/libethercat.so"
+        ssh $USER_AT_SERVER "ln -f -s ${ROOT_TARGET_DIR}/${ARG_ARCH}/${EC_LIB}/${DRV_LIBETH1_LONG}          ${ROOT_TARGET_DIR}/${ARG_ARCH}/${EC_LIB}/libethercat.so.1"
+        ssh $USER_AT_SERVER "ln -f -s ${ROOT_TARGET_DIR}/${ARG_ARCH}/${EC_LIB}/${DRV_LIBETH2_LONG}          ${ROOT_TARGET_DIR}/${ARG_ARCH}/${EC_LIB}/${DRV_LIBETH2}"
+        echo "...done"
+    fi
+    echo "======================================="
+done
 
-cp ${CURR_DIR}/master/ec_master.ko ${ROOT_TARGET_DIR}/${ARG_ARCH}/${ARG_KERNVER}/${DRV_MASTER_LONG}
-cp ${CURR_DIR}/devices/ec_generic.ko ${ROOT_TARGET_DIR}/${ARG_ARCH}/${ARG_KERNVER}/${DRV_ETHERNET_LONG}
-cp ${CURR_DIR}/lib/.libs/libethercat.so.1.0.0 ${ROOT_TARGET_DIR}/${ARG_ARCH}/${EC_LIB}/${DRV_LIBETH1_LONG}
-cp ${CURR_DIR}/lib/.libs/libethercat.a ${ROOT_TARGET_DIR}/${ARG_ARCH}/${EC_LIB}/${DRV_LIBETH2_LONG}
 
-cd $ARG_ARCH/$ARG_KERNVER
-
-if [ ${TEST} = 0 ]
-then
-	ln -f -s ${DRV_MASTER_LONG} ${ROOT_TARGET_DIR}/${ARG_ARCH}/${ARG_KERNVER}/${DRV_MASTER}
-	ln -f -s ${DRV_ETHERNET_LONG} ${ROOT_TARGET_DIR}/${ARG_ARCH}/${ARG_KERNVER}/${DRV_ETHERNET}
-	cd ../$EC_LIB
-	ln -f -s ${DRV_LIBETH1_LONG} ${ROOT_TARGET_DIR}/${ARG_ARCH}/${EC_LIB}/${DRV_LIBETH1}
-	ln -f -s ${DRV_LIBETH1_LONG} ${ROOT_TARGET_DIR}/${ARG_ARCH}/${EC_LIB}/libethercat.so
-	ln -f -s ${DRV_LIBETH1_LONG} ${ROOT_TARGET_DIR}/${ARG_ARCH}/${EC_LIB}/libethercat.so.1
-
-	ln -f -s ${DRV_LIBETH2_LONG} ${ROOT_TARGET_DIR}/${ARG_ARCH}/${EC_LIB}/${DRV_LIBETH2}
-fi
 
 cd $CURR_DIR
-echo "copy completed"
+echo "Installation completed"
 echo "-------------------------------------------------------------------------------------------"
 echo -e "                  ${BOLD}Hostname${NC}: $HOSTNAME"
 echo -e "              ${BOLD}Architecture${NC}: $ARG_ARCH"
@@ -182,7 +215,7 @@ echo -e "            ${BOLD}Module version${NC}: ${RED}$ARG_MODVER${NC}"
 echo -e "            ${BOLD}Kernel version${NC}: $ARG_KERNVER"
 if [ ${TEST} = 0 ]
 then
-echo "           Kernel module 1: ${DRV_MASTER_LONG} ${ROOT_TARGET_DIR}/${ARG_ARCH}/${ARG_KERNVER}/${DRV_MASTER}"
+echo "           Kernel module 1: ${ROOT_TARGET_DIR}/${ARG_ARCH}/${ARG_KERNVER}/${DRV_MASTER}"
 echo "           Kernel module 2: ${ROOT_TARGET_DIR}/${ARG_ARCH}/${ARG_KERNVER}/${DRV_ETHERNET}"
 echo " Userspace dynamic library: ${ROOT_TARGET_DIR}/${ARG_ARCH}/${EC_LIB}/libethercat.so"
 echo "  Userspace static library: ${ROOT_TARGET_DIR}/${ARG_ARCH}/${EC_LIB}/${DRV_LIBETH2}"

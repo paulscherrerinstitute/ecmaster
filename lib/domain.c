@@ -154,3 +154,20 @@ void ecrt_domain_state(const ec_domain_t *domain, ec_domain_state_t *state)
 }
 
 /*****************************************************************************/
+
+
+int ecrt_domain_received( ec_domain_t *domain )
+{
+    ec_ioctl_domain_state_t data;
+    int ret;
+
+    data.domain_index = domain->index;
+
+    ret = ioctl( domain->master->fd, EC_IOCTL_PSI_DOM_RECEIVED, &data );
+
+    if( EC_IOCTL_IS_ERROR(ret) )
+        fprintf(stderr, "Failed to get domain received info: %s\n", strerror(EC_IOCTL_ERRNO(ret)) );
+
+    return ret;
+}
+

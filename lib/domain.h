@@ -44,3 +44,6 @@ struct ec_domain {
 void ec_domain_clear(ec_domain_t *);
 
 /*****************************************************************************/
+
+int ecrt_domain_received( ec_domain_t *domain );
+
