@@ -40,11 +40,11 @@ while getopts m:k: opt; do
         echo "-------------------------------------------------------------------------------"
         echo "Usage: `basename $0` start [-m module_version] [-k kernel_version]  "
         echo "Usage: `basename $0` stop "
+        echo "Usage: `basename $0` restart "
         echo "module_version (-m): n.m | test" 
         echo "kernel_version (-k): 3.6.11.5          (ifc, PPC)"
         echo "                     3.6.11.5-rt37     (ifc, PPC)     <-- default for architecture ifc"
         echo "                     2.6.32-573.3.1    (SL6, x86_64)  <-- default for architecture sl6"
-        exit 1
         echo "-------------------------------------------------------------------------------"
         exit 1
       ;;
@@ -141,7 +141,16 @@ restart)
     ;;
 
 *)
-    echo "USAGE: $0 {start|stop|restart}"
+        echo "-------------------------------------------------------------------------------"
+        echo "Usage: `basename $0` start [-m module_version] [-k kernel_version]  "
+        echo "Usage: `basename $0` stop "
+        echo "Usage: `basename $0` restart "
+        echo "module_version (-m): n.m | test" 
+        echo "kernel_version (-k): 3.6.11.5          (ifc, PPC)"
+        echo "                     3.6.11.5-rt37     (ifc, PPC)     <-- default for architecture ifc"
+        echo "                     2.6.32-573.3.1    (SL6, x86_64)  <-- default for architecture sl6"
+        echo "-------------------------------------------------------------------------------"
+        exit 1
     ;;
 
 esac
