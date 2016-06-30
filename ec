@@ -10,7 +10,7 @@ ETHERCAT_PORT=eth1
 BOLD='\033[1m'
 RED='\033[31m'
 NC='\033[0m'
-
+ 
 EXEC_CFG=0
 TEST=0
 
