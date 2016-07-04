@@ -30,9 +30,9 @@ fi
 
 
 OPTIND=2
-while getopts m:e: opt; do
+while getopts v:e: opt; do
   case $opt in
-    m)
+    v)
       # module version
       ARG_MODVER=$OPTARG
       echo "Module version $ARG_MODVER"
@@ -45,11 +45,10 @@ while getopts m:e: opt; do
     \?)
         echo "Invalid option: -$OPTARG" >&2
         echo "-------------------------------------------------------------------------------"
-        echo "Usage: `basename $0` start [-m module_version] [-e ethernet_port_nr]  "
+        echo "Usage: `basename $0` start [-v module_version] [-e ethernet_port_nr]  "
         echo "Usage: `basename $0` stop                 "
-        echo "Usage: `basename $0` restart              "
-        echo "module_version (-m): n.m | test           " 
-        echo "ethernet_port_nr (-e): 0, 1, 2,...        " 
+        echo "              module_version (-v): n.m | test" 
+        echo "            ethernet_port_nr (-e): 0, 1, 2,..."
         echo "-------------------------------------------------------------------------------"
         exit 1
       ;;
@@ -72,10 +71,14 @@ DRV_ETH=$KMOD_DIR/ec_generic$ARG_MODVER.ko
 #
 # =========================================================================================================
 #
-
 if [ "$ARG_ARCH" == "ifc" ]; then
     if [ "$ARG_ETH" != "" ]; then
         EC_DEVS="eth$ARG_ETH"
+        RES_IC="$(/sbin/ifconfig $EC_DEVS)"
+        if [ $? != 0 ]; then
+          echo -e "${RED}Ethernet port $BOLD$EC_DEVS$NC$RED does not exist or is not accessible.$NC"
+          exit 1
+        fi
     else
         EC_DEVS_CANDIDATES="eth0 eth1"
         EC_DEVS=$(echo $EC_DEVS_CANDIDATES | sed "s/$(awk 'BEGIN {RS=" "; FS="[=:]"} /ip=/ {print $7}' /proc/cmdline)//")
@@ -89,6 +92,11 @@ else
     EC_DEVS="eth1"
     if [ "$ARG_ETH" != "" ]; then
     	EC_DEVS="eth$ARG_ETH"
+        RES_IC="$(/sbin/ifconfig $EC_DEVS)"
+        if [ $? != 0 ]; then
+          echo -e "${RED}Ethernet port $BOLD$EC_DEVS$NC$RED does not exist or is not accessible.$NC"
+          exit 1
+        fi
     fi
     cnt=0
     for dev in $EC_DEVS
@@ -109,17 +117,17 @@ start)
 
 		echo " "
         if [ ! -f $DRV_MASTER ]; then
-            echo -e "File $BOLD$DRV_MASTER$NC does not exist or not accessible. Check driver installation."
+            echo -e "Kernel module $BOLD$DRV_MASTER$NC does not exist or is not accessible. Check ${BOLD}ecat2$NC driver installation for that platform/version."
             exit 1
         fi
         if [ ! -f $DRV_ETH ]; then
-            echo -e "File $BOLD$DRV_ETH$NC does not exist or not accessible. Check driver installation."
+            echo -e "Kernel module $BOLD$DRV_ETH$NC does not exist or is not accessible. Check ${BOLD}ecat2$NC driver installation for that platform/version."
             exit 1
         fi
-            echo -e "Loading module $BOLD$DRV_MASTER $ARG_MODVER$NC"
+            echo -e "Loading module $BOLD$DRV_MASTER$NC"
             sudo insmod $DRV_MASTER main_devices=$MASTER0_DEVICE backup_devices=""
             if [ $? != 0 ]; then
-              echo -e "$REDLoading kernel module $BOLD$DRV_MASTER$NC$RED failed.$NC"
+              echo -e "${RED}Loading kernel module $BOLD$DRV_MASTER$NC$RED failed.$NC"
               exit 1
             fi
           
@@ -129,7 +137,7 @@ start)
             echo -e "Loading module $BOLD$DRV_ETH$NC"
             sudo insmod $DRV_ETH
             if [ $? != 0 ]; then
-              echo -e "$REDLoading kernel module $BOLD$DRV_ETH$NC$RED failed.$NC"
+              echo -e "${RED}Loading kernel module $BOLD$DRV_ETH$NC$RED failed.$NC"
               exit 1
             fi
         fi
@@ -172,19 +180,13 @@ stop)
 #    exit_success
     ;;
 
-restart)
-    $0 stop || exit 1
-    sleep 1
-    $0 start
-    ;;
 
 *)
         echo "-------------------------------------------------------------------------------"
         echo "Usage: `basename $0` start [-m module_version] [-k kernel_version]  "
         echo "Usage: `basename $0` stop "
-        echo "Usage: `basename $0` restart "
-        echo "module_version (-m): n.m | test" 
-        echo "ethernet_port_nr (-e): 0, 1, 2,..."
+        echo "              module_version (-v): n.m | test" 
+        echo "            ethernet_port_nr (-e): 0, 1, 2,..."
         exit 1
     ;;
 
