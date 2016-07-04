@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # ./build.sh [-a architecture] [-m module_version] [-k kernel_version] [-c]
-#            architecture (-a): ifc | sl6
 #          module_version (-m): n.m | test 
-#          kernel_version (-k): 3.6.11.5          (ifc, PPC)
-#                               3.6.11.5-rt37     (ifc, PPC)     <-- default for architecture ifc
-#                               2.6.32-573.3.1    (SL6, x86_64)  <-- default for architecture sl6
+#          kernel_version (-k): 3.6.11.5                   (ifc, vanilla)
+#                               3.6.11.5-rt37              (ifc, PREEMPT-RT)     
+#                               2.6.32-573.3.1.el6.i686    (SL6, i686)
+#                               2.6.32-573.3.1.el6.x86_64  (SL6, x86_64)
 #               configure (-c): execute configure (needed when changing architecture)
 #
 # Note: Only one architecture (ifc or sl6) can be active ("configured") at any given time
@@ -26,18 +26,8 @@ ARG_MODVER='test'
 ARG_KERNVER='3.6.11.5-rt37'
 
  
-while getopts a:m:k:c opt; do
+while getopts m:k:c opt; do
   case $opt in
-    a)
-      # architecture
-      if [ "$OPTARG" != "ifc" ] && [ "$OPTARG" != "sl6" ] 
-      then
-        echo "ERROR: Architecture $OPTARG is not (yet) supported!" >&2
-        exit 1
-      fi
-      ARG_ARCH=$OPTARG
-      echo "Architecture $ARG_ARCH"
-      ;;
     m)
       # module version
       ARG_MODVER=$OPTARG
@@ -61,11 +51,11 @@ while getopts a:m:k:c opt; do
         echo "-------------------------------------------------------------------------------"
         echo "Usage: `basename $0` [-a architecture] [-m module_version] [-k kernel_version] [-c] "
         echo " "
-        echo "                     architecture (-a): [ifc|sl6]                      "
         echo "                   module_version (-m): [n.m|test]        (n.m = 2.1, 2.2, etc)"
         echo "                   kernel_version (-k): 3.6.11.5          (ifc, PPC)   "
         echo "                                        3.6.11.5-rt37     (ifc, PPC)   "
-        echo "                                        2.6.32-573.3.1    (SL6, x86_64)"
+        echo "                               2.6.32-573.3.1.el6.i686    (SL6, i686)   "
+        echo "                               2.6.32-573.3.1.el6.x86_64  (SL6, x86_64)"
         echo "                        configure (-c): execute configure (needed when changing architecture)"
         echo " "
         echo "Note: Only one architecture (ifc or sl6) can be active ("configured") at any given time"
@@ -76,6 +66,15 @@ while getopts a:m:k:c opt; do
   esac
 done
 
+
+tARCH=${ARG_KERNVER: -4}
+
+if [ "$tARCH" == "11.5" ] || [ "$tARCH" == "rt37" ]; then
+  ARG_ARCH="ifc"
+fi
+if [ "$tARCH" == "i686" ] || [ "$tARCH" == "6_64" ]; then
+  ARG_ARCH="sl6"
+fi
 #
 # =========================================================================================================
 #
@@ -84,19 +83,17 @@ if [ "$ARG_ARCH" == "ifc" ]; then
     . /opt/eldk-5.2/powerpc-e500v2/environment-setup-ppce500v2-linux-gnuspe
     CROSS_COMPILE=$OECORE_NATIVE_SYSROOT/usr/libexec/ppce500v2-linux-gnuspe/gcc/powerpc-linux-gnuspe/4.6.4/
 
-    echo -e "----------------------------------------------"
-    echo -e "IFC 1"
-    echo -e "----------------------------------------------"
     if [ $EXEC_CFG == 1 ]; then
+        echo -e "-------------------------------------------------"
+        echo -e "Cleaning..."
         dye make clean
+        echo -e "Cleaning done."
+        echo -e "-------------------------------------------------"
         dye ./configure --host=powerpc-linux-gnuspe --with-linux-dir=$KERNEL_SRC \
             --disable-8139too --disable-e1000 --disable-e1000e --disable-r8169 --enable-generic \
             --prefix=/usr/local --enable-hrtimer --enable-debug-if --enable-debug-ring
     fi
 
-    echo -e "----------------------------------------------"
-    echo -e "IFC"
-    echo -e "----------------------------------------------"
     dye make all modules ARCH=powerpc CROSS_COMPILE=$CROSS_COMPILE
     RETVAL=$?
     if [ $RETVAL != 0 ]; then
@@ -106,22 +103,27 @@ if [ "$ARG_ARCH" == "ifc" ]; then
 fi
 
 if [ "$ARG_ARCH" == "sl6" ]; then
-    KERNEL_SRC=/usr/src/kernels/$ARG_KERNVER.el6.i686
-    echo -e "----------------------------------------------"
-    echo -e "SL6 1"
-    echo -e "----------------------------------------------"
+    KERNEL_SRC=/usr/src/kernels/$ARG_KERNVER
      
     if [ $EXEC_CFG == 1 ]; then
+        echo -e "-------------------------------------------------"
+        echo -e "Cleaning..."
         dye make clean
+        echo -e "Cleaning done."
+        echo -e "-------------------------------------------------"
         dye ./configure --with-linux-dir=$KERNEL_SRC \
             --disable-8139too --disable-e1000 --disable-e1000e --disable-r8169 --enable-generic \
             --prefix=/usr/local --enable-hrtimer --enable-debug-if --enable-debug-ring
     fi
     
-    echo -e "----------------------------------------------"
-    echo -e "SL6"
-    echo -e "----------------------------------------------"
-    dye make all modules ARCH=x86_64
+    if [ "tARCH" == "i686" ]; then
+        ARCH="i686"
+    fi
+    if [ "tARCH" == "6_64" ]; then
+        ARCH="x86_64"
+    fi
+
+    dye make all modules $ARCH
     RETVAL=$?
     if [ $RETVAL != 0 ]; then
       echo "make failed"
@@ -142,8 +144,8 @@ echo -e "-----------------------------------------------------------------------
 ROOT_TARGET_DIR=/ioc/modules/ecat2
 HOSTNAME=`hostname`
 
-if [ ! -d "$ROOT_TARGET_DIR" ]; then
-  echo "Directory $BOLD$ROOT_TARGET_DIR$NC does not exist here ($HOSTNAME)."
+if [ ! -d "$ROOT_TARGET_DIR" ] && [ ! -d "/import$ROOT_TARGET_DIR" ]; then
+  echo -e "Directory $BOLD$ROOT_TARGET_DIR$NC does not exist here ($HOSTNAME)."
   exit 1
 fi
 
