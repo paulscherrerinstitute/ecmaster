@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# ./build.sh [-a architecture] [-m module_version] [-k kernel_version] [-c]
+# ./build.sh [-m module_version] [-k kernel_version] [-c]
 #          module_version (-m): n.m | test 
 #          kernel_version (-k): 3.6.11.5                   (ifc, vanilla)
 #                               3.6.11.5-rt37              (ifc, PREEMPT-RT)     
@@ -8,8 +8,8 @@
 #                               2.6.32-573.3.1.el6.x86_64  (SL6, x86_64)
 #               configure (-c): execute configure (needed when changing architecture)
 #
-# Note: Only one architecture (ifc or sl6) can be active ("configured") at any given time
-#       Also, configure has to be executed at least once for the given architecture
+#        Note: Only one architecture (ifc, x86_64, i686, ...) can be active ("configured") at any given time
+#              Also, configure has to be executed at least once for the given architecture
 #
 # 16.03.2016 Dragutin Maier-Manojlovic (PSI)
 #
@@ -17,11 +17,12 @@ BOLD='\033[1m'
 RED='\033[31m'
 NC='\033[0m'
 
+set -e
+
 EXEC_CFG=0
 TEST=0
 
 # defaults for arguments
-ARG_ARCH='ifc'
 ARG_MODVER='test'
 ARG_KERNVER='3.6.11.5-rt37'
 
@@ -49,7 +50,7 @@ while getopts m:k:c opt; do
     \?)
         echo "Invalid option: -$OPTARG" >&2
         echo "-------------------------------------------------------------------------------"
-        echo "Usage: `basename $0` [-a architecture] [-m module_version] [-k kernel_version] [-c] "
+        echo "Usage: `basename $0` [-m module_version] [-k kernel_version] [-c] "
         echo " "
         echo "                   module_version (-m): [n.m|test]        (n.m = 2.1, 2.2, etc)"
         echo "                   kernel_version (-k): 3.6.11.5          (ifc, PPC)   "
@@ -58,7 +59,7 @@ while getopts m:k:c opt; do
         echo "                               2.6.32-573.3.1.el6.x86_64  (SL6, x86_64)"
         echo "                        configure (-c): execute configure (needed when changing architecture)"
         echo " "
-        echo "Note: Only one architecture (ifc or sl6) can be active ("configured") at any given time"
+        echo "Note: Only one architecture (ifc, x86_64, i686, ...) can be active ("configured") at any given time"
         echo "      Also, configure has to be executed at least once for the given architecture"
         echo "-------------------------------------------------------------------------------"
         exit 1
@@ -67,76 +68,59 @@ while getopts m:k:c opt; do
 done
 
 
-tARCH=${ARG_KERNVER: -4}
 
-if [ "$tARCH" == "11.5" ] || [ "$tARCH" == "rt37" ]; then
-  ARG_ARCH="ifc"
-fi
-if [ "$tARCH" == "i686" ] || [ "$tARCH" == "6_64" ]; then
-  ARG_ARCH="sl6"
-fi
 #
 # =========================================================================================================
 #
-if [ "$ARG_ARCH" == "ifc" ]; then
+    
+CROSS_COMPILE=""
+if [ "$ARG_KERNVER" == "3.6.11.5" ] || [ "$ARG_KERNVER" == "3.6.11.5-rt37" ]; then
     KERNEL_SRC=/opt/eldk-5.2/kernel/gfa-linux-$ARG_KERNVER
     . /opt/eldk-5.2/powerpc-e500v2/environment-setup-ppce500v2-linux-gnuspe
     CROSS_COMPILE=$OECORE_NATIVE_SYSROOT/usr/libexec/ppce500v2-linux-gnuspe/gcc/powerpc-linux-gnuspe/4.6.4/
-
-    if [ $EXEC_CFG == 1 ]; then
-        echo -e "-------------------------------------------------"
-        echo -e "Cleaning..."
-        dye make clean
-        echo -e "Cleaning done."
-        echo -e "-------------------------------------------------"
-        dye ./configure --host=powerpc-linux-gnuspe --with-linux-dir=$KERNEL_SRC \
-            --disable-8139too --disable-e1000 --disable-e1000e --disable-r8169 --enable-generic \
-            --prefix=/usr/local --enable-hrtimer --enable-debug-if --enable-debug-ring
-    fi
-
-    dye make all modules ARCH=powerpc CROSS_COMPILE=$CROSS_COMPILE
-    RETVAL=$?
-    if [ $RETVAL != 0 ]; then
-      echo "make failed"
-      exit 1
-    fi
+elif [ "$ARG_KERNVER" == "2.6.32-573.3.1.el6.x86_64" ] || [ "$ARG_KERNVER" == "2.6.32-573.3.1.el6.i686" ]; then
+    KERNEL_SRC=/usr/src/kernels/$ARG_KERNVER
+else
+    echo -e "Compiling for kernel version $RED$BOLD$ARG_KERNVER$NC is not (yet) supported."
+    exit 1
 fi
 
-if [ "$ARG_ARCH" == "sl6" ]; then
-    KERNEL_SRC=/usr/src/kernels/$ARG_KERNVER
-     
-    if [ $EXEC_CFG == 1 ]; then
-        echo -e "-------------------------------------------------"
-        echo -e "Cleaning..."
-        dye make clean
-        echo -e "Cleaning done."
-        echo -e "-------------------------------------------------"
-        dye ./configure --with-linux-dir=$KERNEL_SRC \
-            --disable-8139too --disable-e1000 --disable-e1000e --disable-r8169 --enable-generic \
-            --prefix=/usr/local --enable-hrtimer --enable-debug-if --enable-debug-ring
-    fi
-    
-    if [ "tARCH" == "i686" ]; then
-        ARCH="i686"
-    fi
-    if [ "tARCH" == "6_64" ]; then
-        ARCH="x86_64"
+if [ $EXEC_CFG == 1 ]; then
+    if [ "$ARG_KERNVER" == "3.6.11.5" ] || [ "$ARG_KERNVER" == "3.6.11.5-rt37" ]; then
+        HOST="--host=powerpc-linux-gnuspe"
+    elif [ "$ARG_KERNVER" == "2.6.32-573.3.1.el6.x86_64" ] || [ "$ARG_KERNVER" == "2.6.32-573.3.1.el6.i686" ]; then
+        HOST=""
     fi
 
-    dye make all modules $ARCH
-    RETVAL=$?
-    if [ $RETVAL != 0 ]; then
-      echo "make failed"
-      exit 1
-    fi
-fi 
+    dye ./configure $HOST --with-linux-dir=$KERNEL_SRC \
+        --disable-8139too --disable-e1000 --disable-e1000e --disable-r8169 --enable-generic \
+        --prefix=/usr/local --enable-hrtimer --enable-debug-if --enable-debug-ring
+    dye make clean
+fi
+
+MAKEARCH=""
+tARCH=${ARG_KERNVER: -4}
+if [ "$tARCH" == "i686" ]; then
+    MAKEARCH="x86"
+elif [ "$tARCH" == "6_64" ]; then
+    MAKEARCH="x86_64"
+elif [ "$tARCH" == "11.5" ] || [ "$tARCH" == "rt37" ]; then
+    MAKEARCH="powerpc"
+fi
+
+dye make all modules ARCH=$MAKEARCH CROSS_COMPILE=$CROSS_COMPILE
+RETVAL=$?
+if [ $RETVAL != 0 ]; then
+  echo "make failed"
+  exit 1
+fi
 
 #
 # =========================================================================================================
 #
 echo -e "-----------------------------------------------------------------------------"
 echo -e
-echo -e " Architecture $RED$BOLD$ARG_ARCH$NC, Kernel ver. $RED$BOLD$ARG_KERNVER$NC, Master ver. $RED$BOLD$ARG_MODVER$NC"
+echo -e " Kernel ver. $RED$BOLD$ARG_KERNVER$NC, Master ver. $RED$BOLD$ARG_MODVER$NC"
 echo -e
 echo -e "-----------------------------------------------------------------------------"
 
@@ -151,7 +135,6 @@ fi
 
 
 
-EC_LIB=lib
 DRV_MASTER=ec_master.ko
 DRV_ETHERNET=ec_generic.ko
 DRV_LIBETH1=libethercat.so.1.0.0
@@ -169,39 +152,41 @@ server_array=( gfalc sf-lc trfcblc finlc )
 for SERVER in "${server_array[@]}"
 do
     echo "======================================="
-    echo -e "Installing EtherCAT Master (target $BOLD$ARG_ARCH$NC $BOLD$ARG_KERNVER$NC, version $BOLD$ARG_MODVER$NC) to $RED$BOLD$SERVER$NC"
+    echo -e "Installing EtherCAT Master (target $BOLD$ARG_KERNVER$NC, version $BOLD$ARG_MODVER$NC) to $RED$BOLD$SERVER$NC"
     USER_AT_SERVER=${CURR_USER}@${SERVER}
     ROOT=${USER_AT_SERVER}:$ROOT_TARGET_DIR
     
-    echo "Creating directories..."
-    ssh $USER_AT_SERVER "mkdir -p ${ROOT_TARGET_DIR}/${ARG_ARCH}"
-    ssh $USER_AT_SERVER "mkdir -p ${ROOT_TARGET_DIR}/${ARG_ARCH}/${ARG_KERNVER}"
-    ssh $USER_AT_SERVER "mkdir -p ${ROOT_TARGET_DIR}/${ARG_ARCH}/${EC_LIB}"
+    printf "Creating target directories on remote host..."
+    ssh $USER_AT_SERVER "mkdir -p ${ROOT_TARGET_DIR}/master"
+    ssh $USER_AT_SERVER "mkdir -p ${ROOT_TARGET_DIR}/master/${ARG_KERNVER}"
+    ssh $USER_AT_SERVER "mkdir -p ${ROOT_TARGET_DIR}/master/${ARG_KERNVER}/lib"
+    ssh $USER_AT_SERVER "mkdir -p ${ROOT_TARGET_DIR}/master/${ARG_KERNVER}/tool"
     ssh $USER_AT_SERVER "mkdir -p ${ROOT_TARGET_DIR}/bin"
-    echo "...done"
+    printf " done.\n"
     
-    echo "Copying kernel modules..."
-    scp -r ${CURR_DIR}/master/ec_master.ko              ${ROOT}/${ARG_ARCH}/${ARG_KERNVER}/${DRV_MASTER_LONG}
-    scp -r ${CURR_DIR}/devices/ec_generic.ko            ${ROOT}/${ARG_ARCH}/${ARG_KERNVER}/${DRV_ETHERNET_LONG}
-    echo "...done"
-    echo "Copying libraries..."
-    scp -r ${CURR_DIR}/lib/.libs/libethercat.so.1.0.0   ${ROOT}/${ARG_ARCH}/${EC_LIB}/${DRV_LIBETH1_LONG}
-    scp -r ${CURR_DIR}/lib/.libs/libethercat.a          ${ROOT}/${ARG_ARCH}/${EC_LIB}/${DRV_LIBETH2_LONG}
-    echo "...done"
-    echo "Copying ec script..."
+    scp -r ${CURR_DIR}/master/ec_master.ko              ${ROOT}/master/${ARG_KERNVER}/${DRV_MASTER_LONG}
+    scp -r ${CURR_DIR}/devices/ec_generic.ko            ${ROOT}/master/${ARG_KERNVER}/${DRV_ETHERNET_LONG}
+    
+    scp -r ${CURR_DIR}/lib/.libs/libethercat.so.1.0.0   ${ROOT}/master/${ARG_KERNVER}/lib/${DRV_LIBETH1_LONG}
+    scp -r ${CURR_DIR}/lib/.libs/libethercat.a          ${ROOT}/master/${ARG_KERNVER}/lib/${DRV_LIBETH2_LONG}
+    scp -r ${CURR_DIR}/tool/ethercat                    ${ROOT}/master/${ARG_KERNVER}/tool/ethercat
+
     scp -r ${CURR_DIR}/ec   ${ROOT}/bin/
-    echo "...done"
+    
+    TARGET_DIR_MOD="${ROOT_TARGET_DIR}/master/${ARG_KERNVER}"
+    TARGET_DIR_LIB="${ROOT_TARGET_DIR}/master/${ARG_KERNVER}/lib"
+    
     
     if [ ${TEST} = 0 ]
     then
-        echo "Creating links..."
-        ssh $USER_AT_SERVER "ln -f -s ${ROOT_TARGET_DIR}/${ARG_ARCH}/${ARG_KERNVER}/${DRV_MASTER_LONG}      ${ROOT_TARGET_DIR}/${ARG_ARCH}/${ARG_KERNVER}/${DRV_MASTER}"
-        ssh $USER_AT_SERVER "ln -f -s ${ROOT_TARGET_DIR}/${ARG_ARCH}/${ARG_KERNVER}/${DRV_ETHERNET_LONG}    ${ROOT_TARGET_DIR}/${ARG_ARCH}/${ARG_KERNVER}/${DRV_ETHERNET}"
-        ssh $USER_AT_SERVER "ln -f -s ${ROOT_TARGET_DIR}/${ARG_ARCH}/${EC_LIB}/${DRV_LIBETH1_LONG}          ${ROOT_TARGET_DIR}/${ARG_ARCH}/${EC_LIB}/${DRV_LIBETH1}"
-        ssh $USER_AT_SERVER "ln -f -s ${ROOT_TARGET_DIR}/${ARG_ARCH}/${EC_LIB}/${DRV_LIBETH1_LONG}          ${ROOT_TARGET_DIR}/${ARG_ARCH}/${EC_LIB}/libethercat.so"
-        ssh $USER_AT_SERVER "ln -f -s ${ROOT_TARGET_DIR}/${ARG_ARCH}/${EC_LIB}/${DRV_LIBETH1_LONG}          ${ROOT_TARGET_DIR}/${ARG_ARCH}/${EC_LIB}/libethercat.so.1"
-        ssh $USER_AT_SERVER "ln -f -s ${ROOT_TARGET_DIR}/${ARG_ARCH}/${EC_LIB}/${DRV_LIBETH2_LONG}          ${ROOT_TARGET_DIR}/${ARG_ARCH}/${EC_LIB}/${DRV_LIBETH2}"
-        echo "...done"
+        printf "Creating links on remote host..."
+        ssh $USER_AT_SERVER "ln -f -s ${TARGET_DIR_MOD}/${DRV_MASTER_LONG}    ${TARGET_DIR_MOD}/${DRV_MASTER}"
+        ssh $USER_AT_SERVER "ln -f -s ${TARGET_DIR_MOD}/${DRV_ETHERNET_LONG}  ${TARGET_DIR_MOD}/${DRV_ETHERNET}"
+        ssh $USER_AT_SERVER "ln -f -s ${TARGET_DIR_LIB}/${DRV_LIBETH1_LONG}   ${TARGET_DIR_LIB}/${DRV_LIBETH1}"
+        ssh $USER_AT_SERVER "ln -f -s ${TARGET_DIR_LIB}/${DRV_LIBETH1_LONG}   ${TARGET_DIR_LIB}/libethercat.so"
+        ssh $USER_AT_SERVER "ln -f -s ${TARGET_DIR_LIB}/${DRV_LIBETH1_LONG}   ${TARGET_DIR_LIB}/libethercat.so.1"
+        ssh $USER_AT_SERVER "ln -f -s ${TARGET_DIR_LIB}/${DRV_LIBETH2_LONG}   ${TARGET_DIR_LIB}/${DRV_LIBETH2}"
+        printf " done.\n"
     fi
     echo "======================================="
 done
@@ -212,22 +197,23 @@ cd $CURR_DIR
 echo "Installation completed"
 echo "-------------------------------------------------------------------------------------------"
 echo -e "                  ${BOLD}Hostname${NC}: $HOSTNAME"
-echo -e "              ${BOLD}Architecture${NC}: $ARG_ARCH"
-echo -e "            ${BOLD}Module version${NC}: ${RED}$ARG_MODVER${NC}"
+echo -e "            ${BOLD}Master version${NC}: ${RED}$ARG_MODVER${NC}"
 echo -e "            ${BOLD}Kernel version${NC}: $ARG_KERNVER"
 if [ ${TEST} = 0 ]
 then
-echo "           Kernel module 1: ${ROOT_TARGET_DIR}/${ARG_ARCH}/${ARG_KERNVER}/${DRV_MASTER}"
-echo "           Kernel module 2: ${ROOT_TARGET_DIR}/${ARG_ARCH}/${ARG_KERNVER}/${DRV_ETHERNET}"
-echo " Userspace dynamic library: ${ROOT_TARGET_DIR}/${ARG_ARCH}/${EC_LIB}/libethercat.so"
-echo "  Userspace static library: ${ROOT_TARGET_DIR}/${ARG_ARCH}/${EC_LIB}/${DRV_LIBETH2}"
+echo "           Kernel module 1: ${TARGET_DIR_MOD}/${DRV_MASTER}"
+echo "           Kernel module 2: ${TARGET_DIR_MOD}/${DRV_ETHERNET}"
+echo " Userspace dynamic library: ${TARGET_DIR_LIB}/libethercat.so"
+echo "  Userspace static library: ${TARGET_DIR_LIB}/${DRV_LIBETH2}"
+echo "             EtherCAT tool: ${TARGET_DIR_MOD}/tool/ethercat"
 echo "-------------------------------------------------------------------------------------------"
 fi
 if [ ${TEST} = 1 ]
 then
-echo "           Kernel module 1: ${ROOT_TARGET_DIR}/${ARG_ARCH}/${ARG_KERNVER}/${DRV_MASTER_LONG}"
-echo "           Kernel module 2: ${ROOT_TARGET_DIR}/${ARG_ARCH}/${ARG_KERNVER}/${DRV_ETHERNET_LONG}"
-echo " Userspace dynamic library: ${ROOT_TARGET_DIR}/${ARG_ARCH}/${EC_LIB}/${DRV_LIBETH1_LONG}"
-echo "  Userspace static library: ${ROOT_TARGET_DIR}/${ARG_ARCH}/${EC_LIB}/${DRV_LIBETH2_LONG}"
+echo "           Kernel module 1: ${TARGET_DIR_MOD}/${DRV_MASTER_LONG}"
+echo "           Kernel module 2: ${TARGET_DIR_MOD}/${DRV_ETHERNET_LONG}"
+echo " Userspace dynamic library: ${TARGET_DIR_LIB}/${DRV_LIBETH1_LONG}"
+echo "  Userspace static library: ${TARGET_DIR_LIB}/${DRV_LIBETH2_LONG}"
+echo "             EtherCAT tool: ${TARGET_DIR_MOD}/tool/ethercat"
 echo "-------------------------------------------------------------------------------------------"
 fi

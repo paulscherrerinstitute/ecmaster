@@ -60,7 +60,7 @@ enum ec_soe_opcodes {
 
 /** SoE response timeout [ms].
  */
-#define EC_SOE_RESPONSE_TIMEOUT 1000
+#define EC_SOE_RESPONSE_TIMEOUT 12000
 
 /*****************************************************************************/
 

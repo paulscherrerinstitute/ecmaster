@@ -44,7 +44,7 @@
 
 /** Default timeout in ms to wait for FoE transfer responses.
  */
-#define EC_FOE_REQUEST_RESPONSE_TIMEOUT 3000
+#define EC_FOE_REQUEST_RESPONSE_TIMEOUT 12000
 
 /*****************************************************************************/
 

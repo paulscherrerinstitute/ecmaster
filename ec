@@ -59,7 +59,7 @@ done
 # =========================================================================================================
 #
 KMOD_BASEDIR='/ioc/modules/ecat2'
-KMOD_DIR=$KMOD_BASEDIR/$ARG_ARCH/$ARG_KERNVER
+KMOD_DIR=$KMOD_BASEDIR/master/$ARG_KERNVER
 
 if [ "$ARG_MODVER" != "" ]; then
     ARG_MODVER="-$ARG_MODVER"
@@ -147,8 +147,9 @@ start)
         echo -e "EtherCAT kernel modules already loaded."
     fi
 
-    if [ -f /usr/local/bin/ethercat ]; then
-        /usr/local/bin/ethercat version
+    TOOL="${KMOD_DIR}/tool/ethercat"
+    if [ -f $TOOL ]; then
+        eval $TOOL version
     fi
     
 #   exit_success
