@@ -59,8 +59,17 @@
  * \param fmt format string (like in printf())
  * \param args arguments (optional)
  */
+#if 0
+    #define K_INFO    KERN_INFO
+    #define K_WARNING    KERN_WARNING
+    #define K_ERR     KERN_ERR
+#else
+    #define K_INFO    KERN_DEBUG
+    #define K_WARNING    KERN_DEBUG
+    #define K_ERR     KERN_DEBUG
+#endif
 #define EC_SLAVE_INFO(slave, fmt, args...) \
-    printk(KERN_INFO "EtherCAT %u-%u: " fmt, slave->master->index, \
+    printk(K_INFO "EtherCAT %u-%u: " fmt, slave->master->index, \
             slave->ring_position, ##args)
 
 /** Convenience macro for printing slave-specific errors to syslog.
@@ -74,7 +83,7 @@
  * \param args arguments (optional)
  */
 #define EC_SLAVE_ERR(slave, fmt, args...) \
-    printk(KERN_ERR "EtherCAT ERROR %u-%u: " fmt, slave->master->index, \
+    printk(K_ERR "EtherCAT ERROR %u-%u: " fmt, slave->master->index, \
             slave->ring_position, ##args)
 
 /** Convenience macro for printing slave-specific warnings to syslog.
@@ -88,7 +97,7 @@
  * \param args arguments (optional)
  */
 #define EC_SLAVE_WARN(slave, fmt, args...) \
-    printk(KERN_WARNING "EtherCAT WARNING %u-%u: " fmt, \
+    printk(K_WARNING "EtherCAT WARNING %u-%u: " fmt, \
             slave->master->index, slave->ring_position, ##args)
 
 /** Convenience macro for printing slave-specific debug messages to syslog.
@@ -110,6 +119,7 @@
                     slave->master->index, slave->ring_position, ##args); \
         } \
     } while (0)
+
 
 /*****************************************************************************/
 

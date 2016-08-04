@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- *  $Id: cdev.c,v ec403cf308eb 2013/02/12 14:46:43 fp $
+ *  $Id: cdev.c,v 1.1 2015/07/20 14:42:55 maier_d Exp $
  *
  *  Copyright (C) 2006-2012  Florian Pose, Ingenieurgemeinschaft IgH
  *

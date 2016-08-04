@@ -58,8 +58,17 @@
  * \param fmt format string (like in printf())
  * \param args arguments (optional)
  */
+#if 0
+    #define K_INFO    KERN_INFO
+    #define K_WARNING    KERN_WARNING
+    #define K_ERR     KERN_ERR
+#else
+    #define K_INFO    KERN_DEBUG
+    #define K_WARNING    KERN_DEBUG
+    #define K_ERR     KERN_DEBUG
+#endif
 #define EC_CONFIG_INFO(sc, fmt, args...) \
-    printk(KERN_INFO "EtherCAT %u %u:%u: " fmt, sc->master->index, \
+    printk(K_INFO "EtherCAT %u %u:%u: " fmt, sc->master->index, \
             sc->alias, sc->position, ##args)
 
 /** Convenience macro for printing configuration-specific errors to syslog.
@@ -73,7 +82,7 @@
  * \param args arguments (optional)
  */
 #define EC_CONFIG_ERR(sc, fmt, args...) \
-    printk(KERN_ERR "EtherCAT ERROR %u %u:%u: " fmt, sc->master->index, \
+    printk(K_ERR "EtherCAT ERROR %u %u:%u: " fmt, sc->master->index, \
             sc->alias, sc->position, ##args)
 
 /** Convenience macro for printing configuration-specific warnings to syslog.
@@ -87,7 +96,7 @@
  * \param args arguments (optional)
  */
 #define EC_CONFIG_WARN(sc, fmt, args...) \
-    printk(KERN_WARNING "EtherCAT WARNING %u %u:%u: " fmt, \
+    printk(K_WARNING "EtherCAT WARNING %u %u:%u: " fmt, \
             sc->master->index, sc->alias, sc->position, ##args)
 
 /** Convenience macro for printing configuration-specific debug messages to
@@ -110,6 +119,7 @@
                     sc->master->index, sc->alias, sc->position, ##args); \
         } \
     } while (0)
+
 
 /*****************************************************************************/
 

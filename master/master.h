@@ -70,8 +70,18 @@
  * \param fmt format string (like in printf())
  * \param args arguments (optional)
  */
+#if 0
+    #define K_INFO    KERN_INFO
+    #define K_WARNING    KERN_WARNING
+    #define K_ERR     KERN_ERR
+#else
+    #define K_INFO    KERN_DEBUG
+    #define K_WARNING    KERN_DEBUG
+    #define K_ERR     KERN_DEBUG
+#endif
+
 #define EC_MASTER_INFO(master, fmt, args...) \
-    printk(KERN_INFO "EtherCAT %u: " fmt, master->index, ##args)
+    printk(K_INFO "EtherCAT %u: " fmt, master->index, ##args)
 
 /** Convenience macro for printing master-specific errors to syslog.
  *
@@ -83,7 +93,7 @@
  * \param args arguments (optional)
  */
 #define EC_MASTER_ERR(master, fmt, args...) \
-    printk(KERN_ERR "EtherCAT ERROR %u: " fmt, master->index, ##args)
+    printk(K_ERR "EtherCAT ERROR %u: " fmt, master->index, ##args)
 
 /** Convenience macro for printing master-specific warnings to syslog.
  *
@@ -95,7 +105,7 @@
  * \param args arguments (optional)
  */
 #define EC_MASTER_WARN(master, fmt, args...) \
-    printk(KERN_WARNING "EtherCAT WARNING %u: " fmt, master->index, ##args)
+    printk(K_WARNING "EtherCAT WARNING %u: " fmt, master->index, ##args)
 
 /** Convenience macro for printing master-specific debug messages to syslog.
  *

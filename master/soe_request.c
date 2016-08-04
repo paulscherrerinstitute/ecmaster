@@ -43,7 +43,7 @@
 
 /** Default timeout in ms to wait for SoE responses.
  */
-#define EC_SOE_REQUEST_RESPONSE_TIMEOUT 12000
+#define EC_SOE_REQUEST_RESPONSE_TIMEOUT EC_SOE_REQUEST_RESPONSE_TIMEOUT_OVERRIDE
 
 /*****************************************************************************/
 

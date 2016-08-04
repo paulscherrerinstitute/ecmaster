@@ -43,6 +43,29 @@
  * EtherCAT master
  *****************************************************************************/
 
+/** Default timeout in ms to wait for FoE transfer responses.
+ */
+#define EC_FOE_REQUEST_RESPONSE_TIMEOUT_OVERRIDE		10000
+
+/** SoE response timeout [ms].
+ */
+#define EC_SOE_RESPONSE_TIMEOUT_OVERRIDE				10000
+
+/** Default timeout in ms to wait for SoE responses.
+ */
+#define EC_SOE_REQUEST_RESPONSE_TIMEOUT_OVERRIDE		10000
+
+/** Default timeout in ms to wait for SDO transfer responses.
+ */
+#define EC_SDO_REQUEST_RESPONSE_TIMEOUT_OVERRIDE		10000
+
+
+/* original value: 20 */
+#define SII_TIMEOUT_OVERRIDE							2000
+
+/* original value: 3 */
+#define EC_FSM_RETRIES_OVERRIDE							30
+
 /** Datagram timeout in microseconds. */
 #define EC_IO_TIMEOUT 500
 
@@ -56,7 +79,7 @@
 #define EC_BYTE_TRANSMISSION_TIME_NS 80
 
 /** Number of state machine retries on datagram timeout. */
-#define EC_FSM_RETRIES 3
+#define EC_FSM_RETRIES EC_FSM_RETRIES_OVERRIDE
 
 /** Seconds to wait before fetching SDO dictionary
     after slave entered PREOP state. */
@@ -214,8 +237,18 @@ extern const char *ec_device_names[2]; // only main and backup!
  * \param fmt format string (like in printf())
  * \param args arguments (optional)
  */
+#if 0
+    #define K_INFO    KERN_INFO
+    #define K_WARNING    KERN_WARNING
+    #define K_ERR     KERN_ERR
+#else
+    #define K_INFO    KERN_DEBUG
+    #define K_WARNING    KERN_DEBUG
+    #define K_ERR     KERN_DEBUG
+#endif
+
 #define EC_INFO(fmt, args...) \
-    printk(KERN_INFO "EtherCAT: " fmt, ##args)
+    printk(K_INFO "EtherCAT: " fmt, ##args)
 
 /** Convenience macro for printing EtherCAT-specific errors to syslog.
  *
@@ -225,7 +258,7 @@ extern const char *ec_device_names[2]; // only main and backup!
  * \param args arguments (optional)
  */
 #define EC_ERR(fmt, args...) \
-    printk(KERN_ERR "EtherCAT ERROR: " fmt, ##args)
+    printk(K_ERR "EtherCAT ERROR: " fmt, ##args)
 
 /** Convenience macro for printing EtherCAT-specific warnings to syslog.
  *
@@ -235,7 +268,7 @@ extern const char *ec_device_names[2]; // only main and backup!
  * \param args arguments (optional)
  */
 #define EC_WARN(fmt, args...) \
-    printk(KERN_WARNING "EtherCAT WARNING: " fmt, ##args)
+    printk(K_WARNING "EtherCAT WARNING: " fmt, ##args)
 
 /** Convenience macro for printing EtherCAT debug messages to syslog.
  *
@@ -246,6 +279,7 @@ extern const char *ec_device_names[2]; // only main and backup!
  */
 #define EC_DBG(fmt, args...) \
     printk(KERN_DEBUG "EtherCAT DEBUG: " fmt, ##args)
+
 
 /*****************************************************************************/
 
