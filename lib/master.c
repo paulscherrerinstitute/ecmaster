@@ -258,8 +258,13 @@ int ecrt_master_get_slave(ec_master_t *master, uint16_t slave_position,
 
     ret = ioctl(master->fd, EC_IOCTL_SLAVE, &data);
     if (EC_IOCTL_IS_ERROR(ret)) {
+/*
+ * commented out for now, was spamming stderr
+ * when called for slaves that died/disappeared long after the start
+ *
         fprintf(stderr, "Failed to get slave info: %s\n",
                 strerror(EC_IOCTL_ERRNO(ret)));
+*/
         return -EC_IOCTL_ERRNO(ret);
     }
 
