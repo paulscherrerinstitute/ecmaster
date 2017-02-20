@@ -148,12 +148,21 @@ int ec_eoe_init(
 
     snprintf(eoe->datagram.name, EC_DATAGRAM_NAME_SIZE, name);
 
+#if LINUX_VERSION_CODE <= KERNEL_VERSION( 3, 17, 0 )
     if (!(eoe->dev = alloc_netdev(sizeof(ec_eoe_t *), name, ether_setup))) {
         EC_SLAVE_ERR(slave, "Unable to allocate net_device %s"
                 " for EoE handler!\n", name);
         ret = -ENODEV;
         goto out_return;
     }
+#else
+    if (!(eoe->dev = alloc_netdev(sizeof(ec_eoe_t *), name, NET_NAME_UNKNOWN, ether_setup))) {
+        EC_SLAVE_ERR(slave, "Unable to allocate net_device %s"
+                " for EoE handler!\n", name);
+        ret = -ENODEV;
+        goto out_return;
+    }
+#endif
 
     // initialize net_device
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 29)

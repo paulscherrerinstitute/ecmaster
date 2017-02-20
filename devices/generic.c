@@ -149,8 +149,12 @@ int ec_gen_device_init(
     dev->socket = NULL;
     dev->rx_buf = NULL;
 
+#if LINUX_VERSION_CODE <= KERNEL_VERSION( 3, 17, 0 )
     dev->netdev = alloc_netdev(sizeof(ec_gen_device_t *), &null, ether_setup);
-    if (!dev->netdev) {
+#else
+    dev->netdev = alloc_netdev(sizeof(ec_gen_device_t *), &null, NET_NAME_UNKNOWN, ether_setup);
+#endif
+	if (!dev->netdev) {
         return -ENOMEM;
     }
 
@@ -207,8 +211,12 @@ int ec_gen_device_create_socket(
         return -ENOMEM;
     }
 
-    ret = sock_create_kern(PF_PACKET, SOCK_RAW, htons(ETH_P_ETHERCAT),
-            &dev->socket);
+#if LINUX_VERSION_CODE <= KERNEL_VERSION( 3, 17, 0 )
+    ret = sock_create_kern(PF_PACKET, SOCK_RAW, htons(ETH_P_ETHERCAT), &dev->socket);
+#else
+    ret = sock_create_kern( &init_net, PF_PACKET, SOCK_RAW, htons(ETH_P_ETHERCAT), &dev->socket);
+#endif
+
     if (ret) {
         printk(KERN_ERR PFX "Failed to create socket (ret = %i).\n", ret);
         return ret;

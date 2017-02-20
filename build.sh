@@ -4,12 +4,15 @@
 #          module_version (-m): n.m | test 
 #          kernel_version (-k): 3.6.11.5                   (ifc, vanilla)
 #                               3.6.11.5-rt37              (ifc, PREEMPT-RT)     
+#                               3.14.23                    (ifc, PPC)   
+#                               3.14.23-rt20               (ifc, PPC)
+#                               4.9.0-rt1                  (ifc, PPC)   
 #                               2.6.32-573.3.1.el6.i686    (SL6, i686)
 #                               2.6.32-573.3.1.el6.x86_64  (SL6, x86_64)
 #               configure (-c): execute configure (needed when changing architecture)
 #
 #        Note: Only one architecture (ifc, x86_64, i686, ...) can be active ("configured") at any given time
-#              Also, configure has to be executed at least once for the given architecture
+#              Also, configure has to be executed at least once for the given architecture, or when changing the architecture
 #
 # 16.03.2016 Dragutin Maier-Manojlovic (PSI)
 #
@@ -55,6 +58,9 @@ while getopts m:k:c opt; do
         echo "                   module_version (-m): [n.m|test]        (n.m = 2.1, 2.2, etc)"
         echo "                   kernel_version (-k): 3.6.11.5          (ifc, PPC)   "
         echo "                                        3.6.11.5-rt37     (ifc, PPC)   "
+        echo "                                        3.14.23           (ifc, PPC)   "
+        echo "                                        3.14.23-rt20      (ifc, PPC)   "
+        echo "                                        4.9.0-rt1         (ifc, PPC)   "
         echo "                               2.6.32-573.3.1.el6.i686    (SL6, i686)   "
         echo "                               2.6.32-573.3.1.el6.x86_64  (SL6, x86_64)"
         echo "                        configure (-c): execute configure (needed when changing architecture)"
@@ -74,8 +80,12 @@ done
 #
     
 CROSS_COMPILE=""
-if [ "$ARG_KERNVER" == "3.6.11.5" ] || [ "$ARG_KERNVER" == "3.6.11.5-rt37" ]; then
+if [ "$ARG_KERNVER" == "3.6.11.5" ] || [ "$ARG_KERNVER" == "3.6.11.5-rt37" ] || [ "$ARG_KERNVER" == "3.14.23" ]; then
     KERNEL_SRC=/opt/eldk-5.2/kernel/gfa-linux-$ARG_KERNVER
+    . /opt/eldk-5.2/powerpc-e500v2/environment-setup-ppce500v2-linux-gnuspe
+    CROSS_COMPILE=$OECORE_NATIVE_SYSROOT/usr/libexec/ppce500v2-linux-gnuspe/gcc/powerpc-linux-gnuspe/4.6.4/
+elif [ "$ARG_KERNVER" == "3.14.23-rt20" ] || [ "$ARG_KERNVER" == "4.9.0-rt1" ]; then
+    KERNEL_SRC=/opt/eldk-5.2/kernel/denx-linux-$ARG_KERNVER
     . /opt/eldk-5.2/powerpc-e500v2/environment-setup-ppce500v2-linux-gnuspe
     CROSS_COMPILE=$OECORE_NATIVE_SYSROOT/usr/libexec/ppce500v2-linux-gnuspe/gcc/powerpc-linux-gnuspe/4.6.4/
 elif [ "$ARG_KERNVER" == "2.6.32-573.3.1.el6.x86_64" ] || [ "$ARG_KERNVER" == "2.6.32-573.3.1.el6.i686" ]; then
@@ -86,10 +96,10 @@ else
 fi
 
 if [ $EXEC_CFG == 1 ]; then
-    if [ "$ARG_KERNVER" == "3.6.11.5" ] || [ "$ARG_KERNVER" == "3.6.11.5-rt37" ]; then
-        HOST="--host=powerpc-linux-gnuspe"
-    elif [ "$ARG_KERNVER" == "2.6.32-573.3.1.el6.x86_64" ] || [ "$ARG_KERNVER" == "2.6.32-573.3.1.el6.i686" ]; then
+    if [ "$ARG_KERNVER" == "2.6.32-573.3.1.el6.x86_64" ] || [ "$ARG_KERNVER" == "2.6.32-573.3.1.el6.i686" ]; then
         HOST=""
+    else
+        HOST="--host=powerpc-linux-gnuspe"
     fi
 
     dye ./configure $HOST --with-linux-dir=$KERNEL_SRC \
@@ -104,7 +114,7 @@ if [ "$tARCH" == "i686" ]; then
     MAKEARCH="x86"
 elif [ "$tARCH" == "6_64" ]; then
     MAKEARCH="x86_64"
-elif [ "$tARCH" == "11.5" ] || [ "$tARCH" == "rt37" ]; then
+else 
     MAKEARCH="powerpc"
 fi
 
@@ -147,7 +157,9 @@ CURR_DIR=`pwd`
 CURR_USER=`whoami`
 
 #------------ SERVERS
-server_array=( gfalc sf-lc trfcblc finlc )
+#server_array=( gfalc sf-lc trfcblc finlc )
+
+server_array=( gfalc sf-lc finlc )
 
 for SERVER in "${server_array[@]}"
 do
