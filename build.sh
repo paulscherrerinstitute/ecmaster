@@ -159,7 +159,7 @@ CURR_USER=`whoami`
 #------------ SERVERS
 #server_array=( gfalc sf-lc trfcblc finlc )
 
-server_array=( gfalc sf-lc finlc )
+server_array=( gfalc sf-lc finlc hipalc )
 
 for SERVER in "${server_array[@]}"
 do

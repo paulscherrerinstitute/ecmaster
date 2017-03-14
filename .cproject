@@ -21,7 +21,7 @@
 							<builder id="org.eclipse.cdt.build.core.settings.default.builder.1722986910" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="org.eclipse.cdt.build.core.settings.default.builder"/>
 							<tool id="org.eclipse.cdt.build.core.settings.holder.libs.57610947" name="holder for library settings" superClass="org.eclipse.cdt.build.core.settings.holder.libs"/>
 							<tool id="org.eclipse.cdt.build.core.settings.holder.810426487" name="Assembly" superClass="org.eclipse.cdt.build.core.settings.holder">
-								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.1409841799" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
+								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.1409841799" name="Include Paths" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
 									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/gfa-linux-3.6.11.5-rt37/include/"/>
 									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/gfa-linux-3.6.11.5-rt37/arch/"/>
 									<listOptionValue builtIn="false" value="/net/gfa-eldk/export/home/eldk-5.2/powerpc-e500v2/sysroots/i686-eldk-linux/usr/bin/ppce500v2-linux-gnuspe/../../lib/ppce500v2-linux-gnuspe/gcc/powerpc-linux-gnuspe/4.6.4/include"/>
@@ -38,7 +38,7 @@
 									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/gfa-linux-3.6.11.5-rt37/include/asm-generic"/>
 									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/gfa-linux-3.6.11.5-rt37/arch/powerpc/include"/>
 								</option>
-								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.10711676" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
+								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.10711676" name="Symbols" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__GNUC__"/>
 									<listOptionValue builtIn="false" value="__KERNEL__"/>
 									<listOptionValue builtIn="false" value="CONFIG_HZ=1000"/>
@@ -46,7 +46,7 @@
 								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.894013582" languageId="org.eclipse.cdt.core.assembly" languageName="Assembly" sourceContentType="org.eclipse.cdt.core.asmSource" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
 							</tool>
 							<tool id="org.eclipse.cdt.build.core.settings.holder.1799918846" name="GNU C++" superClass="org.eclipse.cdt.build.core.settings.holder">
-								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.2107618870" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
+								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.2107618870" name="Include Paths" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
 									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/gfa-linux-3.6.11.5-rt37/include/"/>
 									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/gfa-linux-3.6.11.5-rt37/arch/"/>
 									<listOptionValue builtIn="false" value="/net/gfa-eldk/export/home/eldk-5.2/powerpc-e500v2/sysroots/i686-eldk-linux/usr/bin/ppce500v2-linux-gnuspe/../../lib/ppce500v2-linux-gnuspe/gcc/powerpc-linux-gnuspe/4.6.4/include"/>
@@ -63,7 +63,7 @@
 									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/gfa-linux-3.6.11.5-rt37/include/asm-generic"/>
 									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/gfa-linux-3.6.11.5-rt37/arch/powerpc/include"/>
 								</option>
-								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.920408379" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
+								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.920408379" name="Symbols" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__GNUC__"/>
 									<listOptionValue builtIn="false" value="__KERNEL__"/>
 									<listOptionValue builtIn="false" value="CONFIG_HZ=1000"/>
@@ -71,7 +71,7 @@
 								<inputType id="org.eclipse.cdt.build.core.settings.holder.inType.2122173606" languageId="org.eclipse.cdt.core.g++" languageName="GNU C++" sourceContentType="org.eclipse.cdt.core.cxxSource,org.eclipse.cdt.core.cxxHeader" superClass="org.eclipse.cdt.build.core.settings.holder.inType"/>
 							</tool>
 							<tool id="org.eclipse.cdt.build.core.settings.holder.1513123162" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder">
-								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.1219481951" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
+								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.1219481951" name="Include Paths" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
 									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/gfa-linux-3.6.11.5-rt37/include/"/>
 									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/gfa-linux-3.6.11.5-rt37/arch/"/>
 									<listOptionValue builtIn="false" value="/net/gfa-eldk/export/home/eldk-5.2/powerpc-e500v2/sysroots/i686-eldk-linux/usr/bin/ppce500v2-linux-gnuspe/../../lib/ppce500v2-linux-gnuspe/gcc/powerpc-linux-gnuspe/4.6.4/include"/>
@@ -88,7 +88,7 @@
 									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/gfa-linux-3.6.11.5-rt37/include/asm-generic"/>
 									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/gfa-linux-3.6.11.5-rt37/arch/powerpc/include"/>
 								</option>
-								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.898532192" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
+								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.898532192" name="Symbols" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__GNUC__"/>
 									<listOptionValue builtIn="false" value="__KERNEL__"/>
 									<listOptionValue builtIn="false" value="CONFIG_HZ=1000"/>
