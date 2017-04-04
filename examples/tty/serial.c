@@ -294,11 +294,11 @@ int el60xx_cflag_changed(void *data, tcflag_t cflag)
     el600x_data_frame_t *df_to_use = NULL;
 
 #if DEBUG
-    printk(KERN_INFO PFX "%s(%s, cflag=%x).\n", __func__, port->name, cflag);
+    dmm_prtk(KERN_INFO PFX "%s(%s, cflag=%x).\n", __func__, port->name, cflag);
 #endif
 
     rtscts = cflag & CRTSCTS;
-    printk(KERN_INFO PFX "%s: Requested RTS/CTS: %s.\n",
+    dmm_prtk(KERN_INFO PFX "%s: Requested RTS/CTS: %s.\n",
             port->name, rtscts ? "yes" : "no");
 
     cbaud = cflag & CBAUD;
@@ -313,10 +313,10 @@ int el60xx_cflag_changed(void *data, tcflag_t cflag)
     }
 
     if (b_to_use) {
-        printk(KERN_INFO PFX "%s: Requested baud rate: %u.\n",
+        dmm_prtk(KERN_INFO PFX "%s: Requested baud rate: %u.\n",
                 port->name, b_to_use->baud);
     } else {
-        printk(KERN_ERR PFX "Error: %s does not support"
+        dmm_prtk(KERN_ERR PFX "Error: %s does not support"
                 " baud rate index %x.\n", port->name, cbaud);
         return -EINVAL;
     }
@@ -346,7 +346,7 @@ int el60xx_cflag_changed(void *data, tcflag_t cflag)
 
     stop_bits = (cflag & CSTOPB) ? 2 : 1;
 
-    printk(KERN_INFO PFX "%s: Requested Data frame: %u%c%u.\n",
+    dmm_prtk(KERN_INFO PFX "%s: Requested Data frame: %u%c%u.\n",
             port->name, data_bits,
             (par == PAR_NONE ? 'N' : (par == PAR_ODD ? 'O' : 'E')),
             stop_bits);
@@ -363,7 +363,7 @@ int el60xx_cflag_changed(void *data, tcflag_t cflag)
     }
 
     if (!df_to_use) {
-        printk(KERN_ERR PFX "Error: %s does not support data frame type.\n",
+        dmm_prtk(KERN_ERR PFX "Error: %s does not support data frame type.\n",
                 port->name);
         return -EINVAL;
     }
@@ -392,7 +392,7 @@ int el60xx_port_init(el60xx_port_t *port, ec_slave_config_t *sc,
 
     port->tty = ectty_create(&el60xx_tty_ops, port);
     if (IS_ERR(port->tty)) {
-        printk(KERN_ERR PFX "Failed to create tty for %s.\n",
+        dmm_prtk(KERN_ERR PFX "Failed to create tty for %s.\n",
                 port->name);
         ret = PTR_ERR(port->tty);
         goto out_return;
@@ -420,7 +420,7 @@ int el60xx_port_init(el60xx_port_t *port, ec_slave_config_t *sc,
 
     if (!(port->rtscts_sdo = ecrt_slave_config_create_sdo_request(sc,
                     0x8000 + slot_offset, 0x01, 1))) {
-        printk(KERN_ERR PFX "Failed to create SDO request for %s.\n",
+        dmm_prtk(KERN_ERR PFX "Failed to create SDO request for %s.\n",
                 port->name);
         ret = -ENOMEM;
         goto out_free_tty;
@@ -428,7 +428,7 @@ int el60xx_port_init(el60xx_port_t *port, ec_slave_config_t *sc,
 
     if (!(port->baud_sdo = ecrt_slave_config_create_sdo_request(sc,
                     0x8000 + slot_offset, 0x11, 1))) {
-        printk(KERN_ERR PFX "Failed to create SDO request for %s.\n",
+        dmm_prtk(KERN_ERR PFX "Failed to create SDO request for %s.\n",
                 port->name);
         ret = -ENOMEM;
         goto out_free_tty;
@@ -436,7 +436,7 @@ int el60xx_port_init(el60xx_port_t *port, ec_slave_config_t *sc,
 
     if (!(port->frame_sdo = ecrt_slave_config_create_sdo_request(sc,
                     0x8000 + slot_offset, 0x15, 1))) {
-        printk(KERN_ERR PFX "Failed to create SDO request for %s\n",
+        dmm_prtk(KERN_ERR PFX "Failed to create SDO request for %s\n",
                 port->name);
         ret = -ENOMEM;
         goto out_free_tty;
@@ -445,7 +445,7 @@ int el60xx_port_init(el60xx_port_t *port, ec_slave_config_t *sc,
     ret = ecrt_slave_config_reg_pdo_entry(
             sc, 0x7001 + slot_offset, 0x01, domain, NULL);
     if (ret < 0) {
-        printk(KERN_ERR PFX "Failed to register PDO entry of %s\n",
+        dmm_prtk(KERN_ERR PFX "Failed to register PDO entry of %s\n",
                 port->name);
         goto out_free_tty;
     }
@@ -454,7 +454,7 @@ int el60xx_port_init(el60xx_port_t *port, ec_slave_config_t *sc,
     ret = ecrt_slave_config_reg_pdo_entry(
             sc, 0x7000 + slot_offset, 0x11, domain, NULL);
     if (ret < 0) {
-        printk(KERN_ERR PFX "Failed to register PDO entry of %s.\n",
+        dmm_prtk(KERN_ERR PFX "Failed to register PDO entry of %s.\n",
                 port->name);
         goto out_free_tty;
     }
@@ -463,7 +463,7 @@ int el60xx_port_init(el60xx_port_t *port, ec_slave_config_t *sc,
     ret = ecrt_slave_config_reg_pdo_entry(
             sc, 0x6001 + slot_offset, 0x01, domain, NULL);
     if (ret < 0) {
-        printk(KERN_ERR PFX "Failed to register PDO entry of %s.\n",
+        dmm_prtk(KERN_ERR PFX "Failed to register PDO entry of %s.\n",
                 port->name);
         goto out_free_tty;
     }
@@ -472,7 +472,7 @@ int el60xx_port_init(el60xx_port_t *port, ec_slave_config_t *sc,
     ret = ecrt_slave_config_reg_pdo_entry(
             sc, 0x6000 + slot_offset, 0x11, domain, NULL);
     if (ret < 0) {
-        printk(KERN_ERR PFX "Failed to register PDO entry of %s.\n",
+        dmm_prtk(KERN_ERR PFX "Failed to register PDO entry of %s.\n",
                 port->name);
         goto out_free_tty;
     }
@@ -481,7 +481,7 @@ int el60xx_port_init(el60xx_port_t *port, ec_slave_config_t *sc,
     if (port->max_tx_data_size > 0) {
         port->tx_data = kmalloc(port->max_tx_data_size, GFP_KERNEL);
         if (port->tx_data == NULL) {
-            printk(KERN_ERR PFX "Failed to allocate %u bytes of TX"
+            dmm_prtk(KERN_ERR PFX "Failed to allocate %u bytes of TX"
                     " memory for %s.\n", port->max_tx_data_size, port->name);
             ret = -ENOMEM;
             goto out_free_tty;
@@ -555,7 +555,7 @@ void el60xx_port_run(el60xx_port_t *port, u8 *pd)
                     ectty_tx_data(port->tty, port->tx_data, port->max_tx_data_size);
                 if (port->tx_data_size) {
 #if DEBUG
-                    printk(KERN_INFO PFX "%s: Sending %u bytes.\n",
+                    dmm_prtk(KERN_INFO PFX "%s: Sending %u bytes.\n",
                             port->name, port->tx_data_size);
 #endif
                     port->tx_request_toggle = !port->tx_request_toggle;
@@ -570,7 +570,7 @@ void el60xx_port_run(el60xx_port_t *port, u8 *pd)
                 uint8_t rx_data_size = status >> 8;
                 port->rx_request_toggle = rx_request_toggle;
 #if DEBUG
-                printk(KERN_INFO PFX "%s: Received %u bytes.\n",
+                dmm_prtk(KERN_INFO PFX "%s: Received %u bytes.\n",
                         port->name, rx_data_size);
 #endif
                 ectty_rx_data(port->tty, rx_data, rx_data_size);
@@ -594,7 +594,7 @@ void el60xx_port_run(el60xx_port_t *port, u8 *pd)
 
         case SER_WAIT_FOR_INIT_RESPONSE:
             if (!(status & (1 << 2))) {
-                printk(KERN_INFO PFX "%s: Init successful.\n", port->name);
+                dmm_prtk(KERN_INFO PFX "%s: Init successful.\n", port->name);
                 port->tx_accepted_toggle = 1;
                 port->control = 0x0000;
                 port->state = SER_READY;
@@ -604,13 +604,13 @@ void el60xx_port_run(el60xx_port_t *port, u8 *pd)
         case SER_SET_RTSCTS:
             switch (ecrt_sdo_request_state(port->rtscts_sdo)) {
                 case EC_REQUEST_SUCCESS:
-                    printk(KERN_INFO PFX "%s: Accepted RTS/CTS.\n",
+                    dmm_prtk(KERN_INFO PFX "%s: Accepted RTS/CTS.\n",
                             port->name);
                     port->current_rtscts = port->requested_rtscts;
                     port->state = SER_REQUEST_INIT;
                     break;
                 case EC_REQUEST_ERROR:
-                    printk(KERN_ERR PFX "Failed to set RTS/CTS on %s!\n",
+                    dmm_prtk(KERN_ERR PFX "Failed to set RTS/CTS on %s!\n",
                             port->name);
                     port->state = SER_REQUEST_INIT;
                     port->config_error = 1;
@@ -623,13 +623,13 @@ void el60xx_port_run(el60xx_port_t *port, u8 *pd)
         case SER_SET_BAUD_RATE:
             switch (ecrt_sdo_request_state(port->baud_sdo)) {
                 case EC_REQUEST_SUCCESS:
-                    printk(KERN_INFO PFX "%s: Accepted baud rate.\n",
+                    dmm_prtk(KERN_INFO PFX "%s: Accepted baud rate.\n",
                             port->name);
                     port->current_baud_rate = port->requested_baud_rate;
                     port->state = SER_REQUEST_INIT;
                     break;
                 case EC_REQUEST_ERROR:
-                    printk(KERN_ERR PFX "Failed to set baud rate on %s!\n",
+                    dmm_prtk(KERN_ERR PFX "Failed to set baud rate on %s!\n",
                             port->name);
                     port->state = SER_REQUEST_INIT;
                     port->config_error = 1;
@@ -642,13 +642,13 @@ void el60xx_port_run(el60xx_port_t *port, u8 *pd)
         case SER_SET_DATA_FRAME:
             switch (ecrt_sdo_request_state(port->frame_sdo)) {
                 case EC_REQUEST_SUCCESS:
-                    printk(KERN_INFO PFX "%s: Accepted data frame.\n",
+                    dmm_prtk(KERN_INFO PFX "%s: Accepted data frame.\n",
                             port->name);
                     port->current_data_frame = port->requested_data_frame;
                     port->state = SER_REQUEST_INIT;
                     break;
                 case EC_REQUEST_ERROR:
-                    printk(KERN_ERR PFX "Failed to set data frame on %s!\n",
+                    dmm_prtk(KERN_ERR PFX "Failed to set data frame on %s!\n",
                             port->name);
                     port->state = SER_REQUEST_INIT;
                     port->config_error = 1;
@@ -672,14 +672,14 @@ int el6002_init(el6002_t *el6002, ec_master_t *master, u16 position,
 
     if (!(el6002->sc = ecrt_master_slave_config(
                     master, 0, position, vendor, product))) {
-        printk(KERN_ERR PFX "EL6002(%u): Failed to create"
+        dmm_prtk(KERN_ERR PFX "EL6002(%u): Failed to create"
                 " slave configuration.\n", position);
         ret = -EBUSY;
         goto out_return;
     }
 
     if (ecrt_slave_config_pdos(el6002->sc, EC_END, el6002_syncs)) {
-        printk(KERN_ERR PFX "EL6002(%u): Failed to configure PDOs.\n",
+        dmm_prtk(KERN_ERR PFX "EL6002(%u): Failed to configure PDOs.\n",
                 position);
         ret = -ENOMEM;
         goto out_return;
@@ -691,7 +691,7 @@ int el6002_init(el6002_t *el6002, ec_master_t *master, u16 position,
                 position, i + 1);
         if (el60xx_port_init(el6002->port + i, el6002->sc, domain, i * 0x10,
                     name)) {
-            printk(KERN_ERR PFX "EL6002(%u): Failed to init port X%u.\n",
+            dmm_prtk(KERN_ERR PFX "EL6002(%u): Failed to init port X%u.\n",
                     position, i);
             goto out_ports;
         }
@@ -748,12 +748,12 @@ int create_el6002_handler(ec_master_t *master, ec_domain_t *domain,
     el6002_t *el6002;
     int ret;
 
-    printk(KERN_INFO PFX "Creating handler for EL6002 at position %u\n",
+    dmm_prtk(KERN_INFO PFX "Creating handler for EL6002 at position %u\n",
             position);
 
     el6002 = kmalloc(sizeof(*el6002), GFP_KERNEL);
     if (!el6002) {
-        printk(KERN_ERR PFX "Failed to allocate serial device object.\n");
+        dmm_prtk(KERN_ERR PFX "Failed to allocate serial device object.\n");
         return -ENOMEM;
     }
 
@@ -776,18 +776,18 @@ int create_serial_devices(ec_master_t *master, ec_domain_t *domain)
     ec_slave_info_t slave_info;
     el6002_t *ser, *next;
 
-    printk(KERN_INFO PFX "Registering serial devices...\n");
+    dmm_prtk(KERN_INFO PFX "Registering serial devices...\n");
 
     ret = ecrt_master(master, &master_info);
     if (ret) {
-        printk(KERN_ERR PFX "Failed to obtain master information.\n");
+        dmm_prtk(KERN_ERR PFX "Failed to obtain master information.\n");
         goto out_return;
     }
 
     for (i = 0; i < master_info.slave_count; i++) {
         ret = ecrt_master_get_slave(master, i, &slave_info);
         if (ret) {
-            printk(KERN_ERR PFX "Failed to obtain slave information.\n");
+            dmm_prtk(KERN_ERR PFX "Failed to obtain slave information.\n");
             goto out_free_handlers;
         }
 
@@ -808,7 +808,7 @@ int create_serial_devices(ec_master_t *master, ec_domain_t *domain)
         }
     }
 
-    printk(KERN_INFO PFX "Finished registering serial devices.\n");
+    dmm_prtk(KERN_INFO PFX "Finished registering serial devices.\n");
     return 0;
 
 out_free_handlers:
@@ -827,7 +827,7 @@ void free_serial_devices(void)
 {
     el6002_t *ser, *next;
 
-    printk(KERN_INFO PFX "Cleaning up serial devices...\n");
+    dmm_prtk(KERN_INFO PFX "Cleaning up serial devices...\n");
 
     list_for_each_entry_safe(ser, next, &handlers, list) {
         list_del(&ser->list);
@@ -835,7 +835,7 @@ void free_serial_devices(void)
         kfree(ser);
     }
 
-    printk(KERN_INFO PFX "Finished cleaning up serial devices.\n");
+    dmm_prtk(KERN_INFO PFX "Finished cleaning up serial devices.\n");
 }
 
 /*****************************************************************************/

@@ -268,7 +268,7 @@ void e1000e_update_mc_addr_list_generic(struct e1000_hw *hw,
 	u32 *mcarray = kzalloc(hw->mac.mta_reg_count * sizeof(u32), GFP_ATOMIC);
 
 	if (!mcarray) {
-		printk(KERN_ERR "multicast array memory allocation failed\n");
+		dmm_prtk(KERN_ERR "multicast array memory allocation failed\n");
 		return;
 	}
 

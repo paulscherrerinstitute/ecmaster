@@ -51,11 +51,11 @@
 #ifdef RTL8169_DEBUG
 #define assert(expr) \
 	if (!(expr)) {					\
-		printk( "Assertion failed! %s,%s,%s,line=%d\n",	\
+		dmm_prtk( "Assertion failed! %s,%s,%s,line=%d\n",	\
 		#expr,__FILE__,__func__,__LINE__);		\
 	}
 #define dprintk(fmt, args...) \
-	do { printk(KERN_DEBUG PFX fmt, ## args); } while (0)
+	do { dmm_prtk(KERN_DEBUG PFX fmt, ## args); } while (0)
 #else
 #define assert(expr) do {} while (0)
 #define dprintk(fmt, args...)	do {} while (0)
@@ -3975,7 +3975,7 @@ rtl8169_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	int rc;
 
 	if (netif_msg_drv(&debug)) {
-		printk(KERN_INFO "%s Gigabit Ethernet driver %s loaded\n",
+		dmm_prtk(KERN_INFO "%s Gigabit Ethernet driver %s loaded\n",
 		       MODULENAME, RTL8169_VERSION);
 	}
 
@@ -5010,7 +5010,7 @@ static void rtl_hw_start_8168(struct net_device *dev)
 		break;
 
 	default:
-		printk(KERN_ERR PFX "%s: unknown chipset (mac_version = %d).\n",
+		dmm_prtk(KERN_ERR PFX "%s: unknown chipset (mac_version = %d).\n",
 			dev->name, tp->mac_version);
 		break;
 	}

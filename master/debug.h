@@ -61,6 +61,9 @@ void ec_debug_register(ec_debug_t *, const struct net_device *);
 void ec_debug_unregister(ec_debug_t *);
 void ec_debug_send(ec_debug_t *, const uint8_t *, size_t);
 
+void dmm_prtk( const char *format , ... );
+
+
 #endif
 
 /*****************************************************************************/

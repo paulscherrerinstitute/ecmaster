@@ -4408,7 +4408,7 @@ static void e1000_print_link_info(struct e1000_adapter *adapter)
 	u32 ctrl = er32(CTRL);
 
 	/* Link status message must follow this format for user tools */
-	printk(KERN_INFO "e1000e: %s NIC Link is Up %d Mbps %s Duplex, Flow Control: %s\n",
+	dmm_prtk(KERN_INFO "e1000e: %s NIC Link is Up %d Mbps %s Duplex, Flow Control: %s\n",
 		adapter->netdev->name,
 		adapter->link_speed,
 		adapter->link_duplex == FULL_DUPLEX ? "Full" : "Half",
@@ -4644,7 +4644,7 @@ static void e1000_watchdog_task(struct work_struct *work)
 			adapter->link_speed = 0;
 			adapter->link_duplex = 0;
 			/* Link status message must follow this format */
-			printk(KERN_INFO "e1000e: %s NIC Link is Down\n",
+			dmm_prtk(KERN_INFO "e1000e: %s NIC Link is Down\n",
 			       adapter->netdev->name);
 			if (adapter->ecdev) {
 				ecdev_set_link(adapter->ecdev, 0);

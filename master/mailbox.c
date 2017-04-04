@@ -190,13 +190,13 @@ uint8_t *ec_slave_mbox_fetch(const ec_slave_t *slave, /**< slave */
         for (mbox_msg = mbox_error_messages; mbox_msg->code; mbox_msg++) {
             if (mbox_msg->code != code)
                 continue;
-            printk("Code 0x%04X: \"%s\".\n",
+            dmm_prtk("Code 0x%04X: \"%s\".\n",
                     mbox_msg->code, mbox_msg->message);
             break;
         }
 
         if (!mbox_msg->code)
-            printk("Unknown error reply code 0x%04X.\n", code);
+            dmm_prtk("Unknown error reply code 0x%04X.\n", code);
 
         if (slave->master->debug_level)
             ec_print_data(datagram->data + EC_MBOX_HEADER_SIZE, data_size);

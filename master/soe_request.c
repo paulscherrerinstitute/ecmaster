@@ -38,6 +38,7 @@
 #include <linux/slab.h>
 
 #include "soe_request.h"
+#include "debug.h"
 
 /*****************************************************************************/
 

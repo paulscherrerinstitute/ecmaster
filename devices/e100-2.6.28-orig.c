@@ -190,7 +190,7 @@ MODULE_PARM_DESC(eeprom_bad_csum_allow, "Allow bad eeprom checksums");
 MODULE_PARM_DESC(use_io, "Force use of i/o access mode");
 #define DPRINTK(nlevel, klevel, fmt, args...) \
 	(void)((NETIF_MSG_##nlevel & nic->msg_enable) && \
-	printk(KERN_##klevel PFX "%s: %s: " fmt, nic->netdev->name, \
+	dmm_prtk(KERN_##klevel PFX "%s: %s: " fmt, nic->netdev->name, \
 		__func__ , ## args))
 
 #define INTEL_8255X_ETHERNET_DEVICE(device_id, ich) {\
@@ -909,7 +909,7 @@ static u16 mdio_ctrl(struct nic *nic, u32 addr, u32 dir, u32 reg, u16 data)
 		udelay(20);
 	}
 	if (unlikely(!i)) {
-		printk("e100.mdio_ctrl(%s) won't go Ready\n",
+		dmm_prtk("e100.mdio_ctrl(%s) won't go Ready\n",
 			nic->netdev->name );
 		spin_unlock_irqrestore(&nic->mdio_lock, flags);
 		return 0;		/* No way to indicate timeout error */
@@ -2620,7 +2620,7 @@ static int __devinit e100_probe(struct pci_dev *pdev,
 
 	if(!(netdev = alloc_etherdev(sizeof(struct nic)))) {
 		if(((1 << debug) - 1) & NETIF_MSG_PROBE)
-			printk(KERN_ERR PFX "Etherdev alloc failed, abort.\n");
+			dmm_prtk(KERN_ERR PFX "Etherdev alloc failed, abort.\n");
 		return -ENOMEM;
 	}
 
@@ -2866,7 +2866,7 @@ static pci_ers_result_t e100_io_slot_reset(struct pci_dev *pdev)
 	struct nic *nic = netdev_priv(netdev);
 
 	if (pci_enable_device(pdev)) {
-		printk(KERN_ERR "e100: Cannot re-enable PCI device after reset.\n");
+		dmm_prtk(KERN_ERR "e100: Cannot re-enable PCI device after reset.\n");
 		return PCI_ERS_RESULT_DISCONNECT;
 	}
 	pci_set_master(pdev);
@@ -2925,8 +2925,8 @@ static struct pci_driver e100_driver = {
 static int __init e100_init_module(void)
 {
 	if(((1 << debug) - 1) & NETIF_MSG_DRV) {
-		printk(KERN_INFO PFX "%s, %s\n", DRV_DESCRIPTION, DRV_VERSION);
-		printk(KERN_INFO PFX "%s\n", DRV_COPYRIGHT);
+		dmm_prtk(KERN_INFO PFX "%s, %s\n", DRV_DESCRIPTION, DRV_VERSION);
+		dmm_prtk(KERN_INFO PFX "%s\n", DRV_COPYRIGHT);
 	}
 	return pci_register_driver(&e100_driver);
 }

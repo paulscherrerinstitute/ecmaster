@@ -1813,7 +1813,6 @@ static ATTRIBUTES int ec_ioctl_set_send_interval(
 }
 
 
-
 /*****************************************************************************/
 
 /** Check whether a domain has received all its outstanding frames
@@ -1832,10 +1831,8 @@ static ATTRIBUTES int ec_ioctl_psi_dom_received(
 
     if( copy_from_user( &domain_nr, (void __user *)arg, sizeof(domain_nr) ))
         return -EFAULT;
-
 	if (down_interruptible(&master->master_sem))
         return -EINTR;
-
     if( !(domain = ec_master_find_domain( master, domain_nr) ))
 	{
         up(&master->master_sem);
@@ -1844,7 +1841,6 @@ static ATTRIBUTES int ec_ioctl_psi_dom_received(
     }
 
     up(&master->master_sem);
-
 
     list_for_each_entry( datagram_pair, &domain->datagram_pairs, list)
     {

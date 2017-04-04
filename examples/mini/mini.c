@@ -44,6 +44,7 @@
 #endif
 
 #include "../../include/ecrt.h" // EtherCAT realtime interface
+#include "../../master/debug.h"
 
 /*****************************************************************************/
 
@@ -207,9 +208,9 @@ void check_domain1_state(void)
     up(&master_sem);
 
     if (ds.working_counter != domain1_state.working_counter)
-        printk(KERN_INFO PFX "Domain1: WC %u.\n", ds.working_counter);
+        dmm_prtk(KERN_INFO PFX "Domain1: WC %u.\n", ds.working_counter);
     if (ds.wc_state != domain1_state.wc_state)
-        printk(KERN_INFO PFX "Domain1: State %u.\n", ds.wc_state);
+        dmm_prtk(KERN_INFO PFX "Domain1: State %u.\n", ds.wc_state);
 
     domain1_state = ds;
 }
@@ -225,11 +226,11 @@ void check_master_state(void)
     up(&master_sem);
 
     if (ms.slaves_responding != master_state.slaves_responding)
-        printk(KERN_INFO PFX "%u slave(s).\n", ms.slaves_responding);
+        dmm_prtk(KERN_INFO PFX "%u slave(s).\n", ms.slaves_responding);
     if (ms.al_states != master_state.al_states)
-        printk(KERN_INFO PFX "AL states: 0x%02X.\n", ms.al_states);
+        dmm_prtk(KERN_INFO PFX "AL states: 0x%02X.\n", ms.al_states);
     if (ms.link_up != master_state.link_up)
-        printk(KERN_INFO PFX "Link is %s.\n", ms.link_up ? "up" : "down");
+        dmm_prtk(KERN_INFO PFX "Link is %s.\n", ms.link_up ? "up" : "down");
 
     master_state = ms;
 }
@@ -245,11 +246,11 @@ void check_slave_config_states(void)
     up(&master_sem);
 
     if (s.al_state != sc_ana_in_state.al_state)
-        printk(KERN_INFO PFX "AnaIn: State 0x%02X.\n", s.al_state);
+        dmm_prtk(KERN_INFO PFX "AnaIn: State 0x%02X.\n", s.al_state);
     if (s.online != sc_ana_in_state.online)
-        printk(KERN_INFO PFX "AnaIn: %s.\n", s.online ? "online" : "offline");
+        dmm_prtk(KERN_INFO PFX "AnaIn: %s.\n", s.online ? "online" : "offline");
     if (s.operational != sc_ana_in_state.operational)
-        printk(KERN_INFO PFX "AnaIn: %soperational.\n",
+        dmm_prtk(KERN_INFO PFX "AnaIn: %soperational.\n",
                 s.operational ? "" : "Not ");
 
     sc_ana_in_state = s;
@@ -265,15 +266,15 @@ void read_sdo(void)
             ecrt_sdo_request_read(sdo); // trigger first read
             break;
         case EC_REQUEST_BUSY:
-            printk(KERN_INFO PFX "Still busy...\n");
+            dmm_prtk(KERN_INFO PFX "Still busy...\n");
             break;
         case EC_REQUEST_SUCCESS:
-            printk(KERN_INFO PFX "SDO value: 0x%04X\n",
+            dmm_prtk(KERN_INFO PFX "SDO value: 0x%04X\n",
                     EC_READ_U16(ecrt_sdo_request_data(sdo)));
             ecrt_sdo_request_read(sdo); // trigger next read
             break;
         case EC_REQUEST_ERROR:
-            printk(KERN_INFO PFX "Failed to read SDO!\n");
+            dmm_prtk(KERN_INFO PFX "Failed to read SDO!\n");
             ecrt_sdo_request_read(sdo); // retry reading
             break;
     }
@@ -290,15 +291,15 @@ void read_voe(void)
             ecrt_voe_handler_read(voe); // trigger first read
             break;
         case EC_REQUEST_BUSY:
-            printk(KERN_INFO PFX "VoE read still busy...\n");
+            dmm_prtk(KERN_INFO PFX "VoE read still busy...\n");
             break;
         case EC_REQUEST_SUCCESS:
-            printk(KERN_INFO PFX "VoE received.\n");
+            dmm_prtk(KERN_INFO PFX "VoE received.\n");
             // get data via ecrt_voe_handler_data(voe)
             ecrt_voe_handler_read(voe); // trigger next read
             break;
         case EC_REQUEST_ERROR:
-            printk(KERN_INFO PFX "Failed to read VoE data!\n");
+            dmm_prtk(KERN_INFO PFX "Failed to read VoE data!\n");
             ecrt_voe_handler_read(voe); // retry reading
             break;
     }
@@ -388,87 +389,87 @@ int __init init_mini_module(void)
     unsigned int size;
 #endif
 
-    printk(KERN_INFO PFX "Starting...\n");
+    dmm_prtk(KERN_INFO PFX "Starting...\n");
 
     master = ecrt_request_master(0);
     if (!master) {
         ret = -EBUSY;
-        printk(KERN_ERR PFX "Requesting master 0 failed.\n");
+        dmm_prtk(KERN_ERR PFX "Requesting master 0 failed.\n");
         goto out_return;
     }
 
     sema_init(&master_sem, 1);
     ecrt_master_callbacks(master, send_callback, receive_callback, master);
 
-    printk(KERN_INFO PFX "Registering domain...\n");
+    dmm_prtk(KERN_INFO PFX "Registering domain...\n");
     if (!(domain1 = ecrt_master_create_domain(master))) {
-        printk(KERN_ERR PFX "Domain creation failed!\n");
+        dmm_prtk(KERN_ERR PFX "Domain creation failed!\n");
         goto out_release_master;
     }
 
     if (!(sc_ana_in = ecrt_master_slave_config(
                     master, AnaInSlavePos, Beckhoff_EL3152))) {
-        printk(KERN_ERR PFX "Failed to get slave configuration.\n");
+        dmm_prtk(KERN_ERR PFX "Failed to get slave configuration.\n");
         goto out_release_master;
     }
 
 #if CONFIGURE_PDOS
-    printk(KERN_INFO PFX "Configuring PDOs...\n");
+    dmm_prtk(KERN_INFO PFX "Configuring PDOs...\n");
     if (ecrt_slave_config_pdos(sc_ana_in, EC_END, el3152_syncs)) {
-        printk(KERN_ERR PFX "Failed to configure PDOs.\n");
+        dmm_prtk(KERN_ERR PFX "Failed to configure PDOs.\n");
         goto out_release_master;
     }
 
     if (!(sc = ecrt_master_slave_config(
                     master, AnaOutSlavePos, Beckhoff_EL4102))) {
-        printk(KERN_ERR PFX "Failed to get slave configuration.\n");
+        dmm_prtk(KERN_ERR PFX "Failed to get slave configuration.\n");
         goto out_release_master;
     }
 
     if (ecrt_slave_config_pdos(sc, EC_END, el4102_syncs)) {
-        printk(KERN_ERR PFX "Failed to configure PDOs.\n");
+        dmm_prtk(KERN_ERR PFX "Failed to configure PDOs.\n");
         goto out_release_master;
     }
 
     if (!(sc = ecrt_master_slave_config(
                     master, DigOutSlavePos, Beckhoff_EL2004))) {
-        printk(KERN_ERR PFX "Failed to get slave configuration.\n");
+        dmm_prtk(KERN_ERR PFX "Failed to get slave configuration.\n");
         goto out_release_master;
     }
 
     if (ecrt_slave_config_pdos(sc, EC_END, el2004_syncs)) {
-        printk(KERN_ERR PFX "Failed to configure PDOs.\n");
+        dmm_prtk(KERN_ERR PFX "Failed to configure PDOs.\n");
         goto out_release_master;
     }
 #endif
 
 #if SDO_ACCESS
-    printk(KERN_INFO PFX "Creating SDO requests...\n");
+    dmm_prtk(KERN_INFO PFX "Creating SDO requests...\n");
     if (!(sdo = ecrt_slave_config_create_sdo_request(sc_ana_in, 0x3102, 2, 2))) {
-        printk(KERN_ERR PFX "Failed to create SDO request.\n");
+        dmm_prtk(KERN_ERR PFX "Failed to create SDO request.\n");
         goto out_release_master;
     }
     ecrt_sdo_request_timeout(sdo, 500); // ms
 #endif
 
 #if VOE_ACCESS
-    printk(KERN_INFO PFX "Creating VoE handlers...\n");
+    dmm_prtk(KERN_INFO PFX "Creating VoE handlers...\n");
     if (!(voe = ecrt_slave_config_create_voe_handler(sc_ana_in, 1000))) {
-        printk(KERN_ERR PFX "Failed to create VoE handler.\n");
+        dmm_prtk(KERN_ERR PFX "Failed to create VoE handler.\n");
         goto out_release_master;
     }
 #endif
 
-    printk(KERN_INFO PFX "Registering PDO entries...\n");
+    dmm_prtk(KERN_INFO PFX "Registering PDO entries...\n");
     if (ecrt_domain_reg_pdo_entry_list(domain1, domain1_regs)) {
-        printk(KERN_ERR PFX "PDO entry registration failed!\n");
+        dmm_prtk(KERN_ERR PFX "PDO entry registration failed!\n");
         goto out_release_master;
     }
 
 #if EXTERNAL_MEMORY
     if ((size = ecrt_domain_size(domain1))) {
         if (!(domain1_pd = (uint8_t *) kmalloc(size, GFP_KERNEL))) {
-            printk(KERN_ERR PFX "Failed to allocate %u bytes of process data"
+            dmm_prtk(KERN_ERR PFX "Failed to allocate %u bytes of process data"
                     " memory!\n", size);
             goto out_release_master;
         }
@@ -476,9 +477,9 @@ int __init init_mini_module(void)
     }
 #endif
 
-    printk(KERN_INFO PFX "Activating master...\n");
+    dmm_prtk(KERN_INFO PFX "Activating master...\n");
     if (ecrt_master_activate(master)) {
-        printk(KERN_ERR PFX "Failed to activate master!\n");
+        dmm_prtk(KERN_ERR PFX "Failed to activate master!\n");
 #if EXTERNAL_MEMORY
         goto out_free_process_data;
 #else
@@ -491,13 +492,13 @@ int __init init_mini_module(void)
     domain1_pd = ecrt_domain_data(domain1);
 #endif
 
-    printk(KERN_INFO PFX "Starting cyclic sample thread.\n");
+    dmm_prtk(KERN_INFO PFX "Starting cyclic sample thread.\n");
     init_timer(&timer);
     timer.function = cyclic_task;
     timer.expires = jiffies + 10;
     add_timer(&timer);
 
-    printk(KERN_INFO PFX "Started.\n");
+    dmm_prtk(KERN_INFO PFX "Started.\n");
     return 0;
 
 #if EXTERNAL_MEMORY
@@ -505,10 +506,10 @@ out_free_process_data:
     kfree(domain1_pd);
 #endif
 out_release_master:
-    printk(KERN_ERR PFX "Releasing master...\n");
+    dmm_prtk(KERN_ERR PFX "Releasing master...\n");
     ecrt_release_master(master);
 out_return:
-    printk(KERN_ERR PFX "Failed to load. Aborting.\n");
+    dmm_prtk(KERN_ERR PFX "Failed to load. Aborting.\n");
     return ret;
 }
 
@@ -516,7 +517,7 @@ out_return:
 
 void __exit cleanup_mini_module(void)
 {
-    printk(KERN_INFO PFX "Stopping...\n");
+    dmm_prtk(KERN_INFO PFX "Stopping...\n");
 
     del_timer_sync(&timer);
 
@@ -524,10 +525,10 @@ void __exit cleanup_mini_module(void)
     kfree(domain1_pd);
 #endif
 
-    printk(KERN_INFO PFX "Releasing master...\n");
+    dmm_prtk(KERN_INFO PFX "Releasing master...\n");
     ecrt_release_master(master);
 
-    printk(KERN_INFO PFX "Unloading.\n");
+    dmm_prtk(KERN_INFO PFX "Unloading.\n");
 }
 
 /*****************************************************************************/

@@ -200,12 +200,12 @@ void ec_fsm_soe_print_error(ec_fsm_soe_t *fsm /**< Finite state machine */)
     EC_SLAVE_ERR(fsm->slave, "");
 
     if (request->dir == EC_DIR_OUTPUT) {
-        printk("Writing");
+        dmm_prtk("Writing");
     } else {
-        printk("Reading");
+        dmm_prtk("Reading");
     }
 
-    printk(" IDN 0x%04X failed.\n", request->idn);
+    dmm_prtk(" IDN 0x%04X failed.\n", request->idn);
 }
 
 /******************************************************************************

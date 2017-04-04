@@ -36,11 +36,11 @@
 #ifdef RTL8169_DEBUG
 #define assert(expr) \
 	if (!(expr)) {					\
-		printk( "Assertion failed! %s,%s,%s,line=%d\n",	\
+		dmm_prtk( "Assertion failed! %s,%s,%s,line=%d\n",	\
 		#expr,__FILE__,__func__,__LINE__);		\
 	}
 #define dprintk(fmt, args...) \
-	do { printk(KERN_DEBUG PFX fmt, ## args); } while (0)
+	do { dmm_prtk(KERN_DEBUG PFX fmt, ## args); } while (0)
 #else
 #define assert(expr) do {} while (0)
 #define dprintk(fmt, args...)	do {} while (0)
@@ -3013,7 +3013,7 @@ rtl8169_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	int rc;
 
 	if (netif_msg_drv(&debug)) {
-		printk(KERN_INFO "%s Gigabit Ethernet driver %s loaded\n",
+		dmm_prtk(KERN_INFO "%s Gigabit Ethernet driver %s loaded\n",
 		       MODULENAME, RTL8169_VERSION);
 	}
 
@@ -3272,7 +3272,7 @@ static void rtl8169_set_rxbufsize(struct rtl8169_private *tp,
 	unsigned int max_frame = mtu + VLAN_ETH_HLEN + ETH_FCS_LEN;
 
 	if (max_frame != 16383)
-		printk(KERN_WARNING PFX "WARNING! Changing of MTU on this "
+		dmm_prtk(KERN_WARNING PFX "WARNING! Changing of MTU on this "
 			"NIC may lead to frame reception errors!\n");
 
 	tp->rx_buf_sz = (max_frame > RX_BUF_SIZE) ? max_frame : RX_BUF_SIZE;
@@ -3803,7 +3803,7 @@ static void rtl_hw_start_8168(struct net_device *dev)
 	break;
 
 	default:
-		printk(KERN_ERR PFX "%s: unknown chipset (mac_version = %d).\n",
+		dmm_prtk(KERN_ERR PFX "%s: unknown chipset (mac_version = %d).\n",
 			dev->name, tp->mac_version);
 	break;
 	}

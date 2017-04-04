@@ -346,20 +346,20 @@ void ec_print_data(const uint8_t *data, /**< pointer to data */
 
     EC_DBG("");
     for (i = 0; i < size; i++) {
-        printk("%02X ", data[i]);
+        dmm_prtk("%02X ", data[i]);
 
         if ((i + 1) % 16 == 0 && i < size - 1) {
-            printk("\n");
+            dmm_prtk("\n");
             EC_DBG("");
         }
 
         if (i + 1 == 128 && size > 256) {
-            printk("dropped %zu bytes\n", size - 128 - i);
+            dmm_prtk("dropped %zu bytes\n", size - 128 - i);
             i = size - 128;
             EC_DBG("");
         }
     }
-    printk("\n");
+    dmm_prtk("\n");
 }
 
 /*****************************************************************************/
@@ -375,14 +375,14 @@ void ec_print_data_diff(const uint8_t *d1, /**< first data */
 
     EC_DBG("");
     for (i = 0; i < size; i++) {
-        if (d1[i] == d2[i]) printk(".. ");
-        else printk("%02X ", d2[i]);
+        if (d1[i] == d2[i]) dmm_prtk(".. ");
+        else dmm_prtk("%02X ", d2[i]);
         if ((i + 1) % 16 == 0) {
-            printk("\n");
+            dmm_prtk("\n");
             EC_DBG("");
         }
     }
-    printk("\n");
+    dmm_prtk("\n");
 }
 
 /*****************************************************************************/

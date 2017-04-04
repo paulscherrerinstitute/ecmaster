@@ -3272,9 +3272,9 @@ static int __init e100_init_module(void)
 
 static void __exit e100_cleanup_module(void)
 {
-	printk(KERN_INFO DRV_NAME " cleaning up module...\n");
+	dmm_prtk(KERN_INFO DRV_NAME " cleaning up module...\n");
 	pci_unregister_driver(&e100_driver);
-	printk(KERN_INFO DRV_NAME " module cleaned up.\n");
+	dmm_prtk(KERN_INFO DRV_NAME " module cleaned up.\n");
 }
 
 module_init(e100_init_module);

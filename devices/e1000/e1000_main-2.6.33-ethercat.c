@@ -227,17 +227,17 @@ MODULE_PARM_DESC(debug, "Debug level (0=none,...,16=all)");
 static int __init e1000_init_module(void)
 {
 	int ret;
-	printk(KERN_INFO "%s - version %s\n",
+	dmm_prtk(KERN_INFO "%s - version %s\n",
 	       e1000_driver_string, e1000_driver_version);
 
-	printk(KERN_INFO "%s\n", e1000_copyright);
+	dmm_prtk(KERN_INFO "%s\n", e1000_copyright);
 
 	ret = pci_register_driver(&e1000_driver);
 	if (copybreak != COPYBREAK_DEFAULT) {
 		if (copybreak == 0)
-			printk(KERN_INFO "e1000: copybreak disabled\n");
+			dmm_prtk(KERN_INFO "e1000: copybreak disabled\n");
 		else
-			printk(KERN_INFO "e1000: copybreak enabled for "
+			dmm_prtk(KERN_INFO "e1000: copybreak enabled for "
 			       "packets <= %u bytes\n", copybreak);
 	}
 	return ret;
@@ -722,7 +722,7 @@ static void e1000_dump_eeprom(struct e1000_adapter *adapter)
 
 	data = kmalloc(eeprom.len, GFP_KERNEL);
 	if (!data) {
-		printk(KERN_ERR "Unable to allocate memory to dump EEPROM"
+		dmm_prtk(KERN_ERR "Unable to allocate memory to dump EEPROM"
 		       " data\n");
 		return;
 	}
@@ -735,30 +735,30 @@ static void e1000_dump_eeprom(struct e1000_adapter *adapter)
 		csum_new += data[i] + (data[i + 1] << 8);
 	csum_new = EEPROM_SUM - csum_new;
 
-	printk(KERN_ERR "/*********************/\n");
-	printk(KERN_ERR "Current EEPROM Checksum : 0x%04x\n", csum_old);
-	printk(KERN_ERR "Calculated              : 0x%04x\n", csum_new);
+	dmm_prtk(KERN_ERR "/*********************/\n");
+	dmm_prtk(KERN_ERR "Current EEPROM Checksum : 0x%04x\n", csum_old);
+	dmm_prtk(KERN_ERR "Calculated              : 0x%04x\n", csum_new);
 
-	printk(KERN_ERR "Offset    Values\n");
-	printk(KERN_ERR "========  ======\n");
+	dmm_prtk(KERN_ERR "Offset    Values\n");
+	dmm_prtk(KERN_ERR "========  ======\n");
 	print_hex_dump(KERN_ERR, "", DUMP_PREFIX_OFFSET, 16, 1, data, 128, 0);
 
-	printk(KERN_ERR "Include this output when contacting your support "
+	dmm_prtk(KERN_ERR "Include this output when contacting your support "
 	       "provider.\n");
-	printk(KERN_ERR "This is not a software error! Something bad "
+	dmm_prtk(KERN_ERR "This is not a software error! Something bad "
 	       "happened to your hardware or\n");
-	printk(KERN_ERR "EEPROM image. Ignoring this "
+	dmm_prtk(KERN_ERR "EEPROM image. Ignoring this "
 	       "problem could result in further problems,\n");
-	printk(KERN_ERR "possibly loss of data, corruption or system hangs!\n");
-	printk(KERN_ERR "The MAC Address will be reset to 00:00:00:00:00:00, "
+	dmm_prtk(KERN_ERR "possibly loss of data, corruption or system hangs!\n");
+	dmm_prtk(KERN_ERR "The MAC Address will be reset to 00:00:00:00:00:00, "
 	       "which is invalid\n");
-	printk(KERN_ERR "and requires you to set the proper MAC "
+	dmm_prtk(KERN_ERR "and requires you to set the proper MAC "
 	       "address manually before continuing\n");
-	printk(KERN_ERR "to enable this network device.\n");
-	printk(KERN_ERR "Please inspect the EEPROM dump and report the issue "
+	dmm_prtk(KERN_ERR "to enable this network device.\n");
+	dmm_prtk(KERN_ERR "Please inspect the EEPROM dump and report the issue "
 	       "to your hardware vendor\n");
-	printk(KERN_ERR "or Intel Customer Support.\n");
-	printk(KERN_ERR "/*********************/\n");
+	dmm_prtk(KERN_ERR "or Intel Customer Support.\n");
+	dmm_prtk(KERN_ERR "/*********************/\n");
 
 	kfree(data);
 }
@@ -1074,7 +1074,7 @@ static int __devinit e1000_probe(struct pci_dev *pdev,
 		 (hw->bus_speed == e1000_bus_speed_66) ? "66MHz" : "33MHz"),
 		((hw->bus_width == e1000_bus_width_64) ? "64-bit" : "32-bit"));
 
-	printk("%pM\n", netdev->dev_addr);
+	dmm_prtk("%pM\n", netdev->dev_addr);
 
 	/* reset the hardware with the new settings */
 	e1000_reset(adapter);
@@ -2367,7 +2367,7 @@ static void e1000_watchdog(unsigned long data)
 			                           &adapter->link_duplex);
 
 			ctrl = er32(CTRL);
-			printk(KERN_INFO "e1000: %s NIC Link is Up %d Mbps %s, "
+			dmm_prtk(KERN_INFO "e1000: %s NIC Link is Up %d Mbps %s, "
 			       "Flow Control: %s\n",
 			       netdev->name,
 			       adapter->link_speed,
@@ -2415,7 +2415,7 @@ static void e1000_watchdog(unsigned long data)
 				|| (!adapter->ecdev && netif_carrier_ok(netdev))) {
 			adapter->link_speed = 0;
 			adapter->link_duplex = 0;
-			printk(KERN_INFO "e1000: %s NIC Link is Down\n",
+			dmm_prtk(KERN_INFO "e1000: %s NIC Link is Down\n",
 			       netdev->name);
 			if (adapter->ecdev) {
 				ecdev_set_link(adapter->ecdev, 0);
@@ -3265,7 +3265,7 @@ static int e1000_change_mtu(struct net_device *netdev, int new_mtu)
 	     (max_frame == MAXIMUM_ETHERNET_VLAN_SIZE)))
 		adapter->rx_buffer_len = MAXIMUM_ETHERNET_VLAN_SIZE;
 
-	printk(KERN_INFO "e1000: %s changing MTU from %d to %d\n",
+	dmm_prtk(KERN_INFO "e1000: %s changing MTU from %d to %d\n",
 	       netdev->name, netdev->mtu, new_mtu);
 	netdev->mtu = new_mtu;
 
@@ -4755,7 +4755,7 @@ static int e1000_resume(struct pci_dev *pdev)
 	else
 		err = pci_enable_device_mem(pdev);
 	if (err) {
-		printk(KERN_ERR "e1000: Cannot enable PCI device from suspend\n");
+		dmm_prtk(KERN_ERR "e1000: Cannot enable PCI device from suspend\n");
 		return err;
 	}
 	pci_set_master(pdev);
@@ -4858,7 +4858,7 @@ static pci_ers_result_t e1000_io_slot_reset(struct pci_dev *pdev)
 	else
 		err = pci_enable_device_mem(pdev);
 	if (err) {
-		printk(KERN_ERR "e1000: Cannot re-enable PCI device after reset.\n");
+		dmm_prtk(KERN_ERR "e1000: Cannot re-enable PCI device after reset.\n");
 		return PCI_ERS_RESULT_DISCONNECT;
 	}
 	pci_set_master(pdev);
@@ -4889,7 +4889,7 @@ static void e1000_io_resume(struct pci_dev *pdev)
 
 	if (netif_running(netdev)) {
 		if (e1000_up(adapter)) {
-			printk("e1000: can't bring device back up after reset\n");
+			dmm_prtk("e1000: can't bring device back up after reset\n");
 			return;
 		}
 	}

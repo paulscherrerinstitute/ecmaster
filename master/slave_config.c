@@ -44,6 +44,7 @@
 #include "voe_handler.h"
 
 #include "slave_config.h"
+#include "debug.h"
 
 /*****************************************************************************/
 

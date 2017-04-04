@@ -42,6 +42,7 @@
 
 #include "../globals.h"
 #include "ecdev.h"
+#include "../master/debug.h"
 
 #define PFX "ec_generic: "
 
@@ -218,11 +219,11 @@ int ec_gen_device_create_socket(
 #endif
 
     if (ret) {
-        printk(KERN_ERR PFX "Failed to create socket (ret = %i).\n", ret);
+        dmm_prtk(KERN_ERR PFX "Failed to create socket (ret = %i).\n", ret);
         return ret;
     }
 
-    printk(KERN_ERR PFX "Binding socket to interface %i (%s).\n",
+    dmm_prtk(KERN_ERR PFX "Binding socket to interface %i (%s).\n",
             desc->ifindex, desc->name);
 
     memset(&sa, 0x00, sizeof(sa));
@@ -231,7 +232,7 @@ int ec_gen_device_create_socket(
     sa.sll_ifindex = desc->ifindex;
     ret = kernel_bind(dev->socket, (struct sockaddr *) &sa, sizeof(sa));
     if (ret) {
-        printk(KERN_ERR PFX "Failed to bind() socket to interface"
+        dmm_prtk(KERN_ERR PFX "Failed to bind() socket to interface"
                 " (ret = %i).\n", ret);
         sock_release(dev->socket);
         dev->socket = NULL;
@@ -408,7 +409,7 @@ int __init ec_gen_init_module(void)
     struct net_device *netdev;
     ec_gen_interface_desc_t *desc, *next;
 
-    printk(KERN_INFO PFX "EtherCAT master generic Ethernet device module %s\n",
+    dmm_prtk(KERN_INFO PFX "EtherCAT master generic Ethernet device module %s\n",
             EC_MASTER_VERSION);
 
     INIT_LIST_HEAD(&generic_devices);
@@ -459,7 +460,32 @@ out_err:
 void __exit ec_gen_cleanup_module(void)
 {
     clear_devices();
-    printk(KERN_INFO PFX "Unloading.\n");
+    dmm_prtk(KERN_INFO PFX "Unloading.\n");
+}
+
+void dmm_prtk( const char *format , ... )
+{
+	char *f;
+	va_list arglist;
+	int len = strlen( format );
+	va_start( arglist, format );
+//	printk( KERN_DEBUG "test---->%s<---------------------------------", format);
+
+	if( likely( len > 0 ) )
+		if( format[0] != '\001' && format[len-1] != '\n' )
+		{
+			if( (f = kzalloc( len + 3, GFP_KERNEL)) )
+				strcat( memcpy( f, KERN_CONT, 2 ), format );
+//				strcat( strcat( memcpy( f, KERN_CONT, 2 ), format ), "###" );
+
+			vprintk( f, arglist );
+			va_end( arglist );
+			kfree( f );
+			return;
+		}
+
+	vprintk( format, arglist );
+	va_end( arglist );
 }
 
 /*****************************************************************************/

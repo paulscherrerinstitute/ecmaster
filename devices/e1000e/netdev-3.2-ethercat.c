@@ -165,16 +165,16 @@ static void e1000_regdump(struct e1000_hw *hw, struct e1000_reg_info *reginfo)
 			regs[n] = __er32(hw, E1000_TARC(n));
 		break;
 	default:
-		printk(KERN_INFO "%-15s %08x\n",
+		dmm_prtk(KERN_INFO "%-15s %08x\n",
 		       reginfo->name, __er32(hw, reginfo->ofs));
 		return;
 	}
 
 	snprintf(rname, 16, "%s%s", reginfo->name, "[0-1]");
-	printk(KERN_INFO "%-15s ", rname);
+	dmm_prtk(KERN_INFO "%-15s ", rname);
 	for (n = 0; n < 2; n++)
-		printk(KERN_CONT "%08x ", regs[n]);
-	printk(KERN_CONT "\n");
+		dmm_prtk(KERN_CONT "%08x ", regs[n]);
+	dmm_prtk(KERN_CONT "\n");
 }
 
 /*
@@ -210,16 +210,16 @@ static void e1000e_dump(struct e1000_adapter *adapter)
 	/* Print netdevice Info */
 	if (netdev) {
 		dev_info(&adapter->pdev->dev, "Net device Info\n");
-		printk(KERN_INFO "Device Name     state            "
+		dmm_prtk(KERN_INFO "Device Name     state            "
 		       "trans_start      last_rx\n");
-		printk(KERN_INFO "%-15s %016lX %016lX %016lX\n",
+		dmm_prtk(KERN_INFO "%-15s %016lX %016lX %016lX\n",
 		       netdev->name, netdev->state, netdev->trans_start,
 		       netdev->last_rx);
 	}
 
 	/* Print Registers */
 	dev_info(&adapter->pdev->dev, "Register Dump\n");
-	printk(KERN_INFO " Register Name   Value\n");
+	dmm_prtk(KERN_INFO " Register Name   Value\n");
 	for (reginfo = (struct e1000_reg_info *)e1000_reg_info_tbl;
 	     reginfo->name; reginfo++) {
 		e1000_regdump(hw, reginfo);
@@ -230,10 +230,10 @@ static void e1000e_dump(struct e1000_adapter *adapter)
 		goto exit;
 
 	dev_info(&adapter->pdev->dev, "Tx Ring Summary\n");
-	printk(KERN_INFO "Queue [NTU] [NTC] [bi(ntc)->dma  ]"
+	dmm_prtk(KERN_INFO "Queue [NTU] [NTC] [bi(ntc)->dma  ]"
 	       " leng ntw timestamp\n");
 	buffer_info = &tx_ring->buffer_info[tx_ring->next_to_clean];
-	printk(KERN_INFO " %5d %5X %5X %016llX %04X %3X %016llX\n",
+	dmm_prtk(KERN_INFO " %5d %5X %5X %016llX %04X %3X %016llX\n",
 	       0, tx_ring->next_to_use, tx_ring->next_to_clean,
 	       (unsigned long long)buffer_info->dma,
 	       buffer_info->length,
@@ -273,20 +273,20 @@ static void e1000e_dump(struct e1000_adapter *adapter)
 	 *   +----------------------------------------------------------------+
 	 *   63       48 47     40 39  36 35    32 31     24 23  20 19        0
 	 */
-	printk(KERN_INFO "Tl[desc]     [address 63:0  ] [SpeCssSCmCsLen]"
+	dmm_prtk(KERN_INFO "Tl[desc]     [address 63:0  ] [SpeCssSCmCsLen]"
 	       " [bi->dma       ] leng  ntw timestamp        bi->skb "
 	       "<-- Legacy format\n");
-	printk(KERN_INFO "Tc[desc]     [Ce CoCsIpceCoS] [MssHlRSCm0Plen]"
+	dmm_prtk(KERN_INFO "Tc[desc]     [Ce CoCsIpceCoS] [MssHlRSCm0Plen]"
 	       " [bi->dma       ] leng  ntw timestamp        bi->skb "
 	       "<-- Ext Context format\n");
-	printk(KERN_INFO "Td[desc]     [address 63:0  ] [VlaPoRSCm1Dlen]"
+	dmm_prtk(KERN_INFO "Td[desc]     [address 63:0  ] [VlaPoRSCm1Dlen]"
 	       " [bi->dma       ] leng  ntw timestamp        bi->skb "
 	       "<-- Ext Data format\n");
 	for (i = 0; tx_ring->desc && (i < tx_ring->count); i++) {
 		tx_desc = E1000_TX_DESC(*tx_ring, i);
 		buffer_info = &tx_ring->buffer_info[i];
 		u0 = (struct my_u0 *)tx_desc;
-		printk(KERN_INFO "T%c[0x%03X]    %016llX %016llX %016llX "
+		dmm_prtk(KERN_INFO "T%c[0x%03X]    %016llX %016llX %016llX "
 		       "%04X  %3X %016llX %p",
 		       (!(le64_to_cpu(u0->b) & (1 << 29)) ? 'l' :
 			((le64_to_cpu(u0->b) & (1 << 20)) ? 'd' : 'c')), i,
@@ -297,13 +297,13 @@ static void e1000e_dump(struct e1000_adapter *adapter)
 		       (unsigned long long)buffer_info->time_stamp,
 		       buffer_info->skb);
 		if (i == tx_ring->next_to_use && i == tx_ring->next_to_clean)
-			printk(KERN_CONT " NTC/U\n");
+			dmm_prtk(KERN_CONT " NTC/U\n");
 		else if (i == tx_ring->next_to_use)
-			printk(KERN_CONT " NTU\n");
+			dmm_prtk(KERN_CONT " NTU\n");
 		else if (i == tx_ring->next_to_clean)
-			printk(KERN_CONT " NTC\n");
+			dmm_prtk(KERN_CONT " NTC\n");
 		else
-			printk(KERN_CONT "\n");
+			dmm_prtk(KERN_CONT "\n");
 
 		if (netif_msg_pktdata(adapter) && buffer_info->dma != 0)
 			print_hex_dump(KERN_INFO, "", DUMP_PREFIX_ADDRESS,
@@ -314,8 +314,8 @@ static void e1000e_dump(struct e1000_adapter *adapter)
 	/* Print Rx Ring Summary */
 rx_ring_summary:
 	dev_info(&adapter->pdev->dev, "Rx Ring Summary\n");
-	printk(KERN_INFO "Queue [NTU] [NTC]\n");
-	printk(KERN_INFO " %5d %5X %5X\n", 0,
+	dmm_prtk(KERN_INFO "Queue [NTU] [NTC]\n");
+	dmm_prtk(KERN_INFO " %5d %5X %5X\n", 0,
 	       rx_ring->next_to_use, rx_ring->next_to_clean);
 
 	/* Print Rx Ring */
@@ -339,7 +339,7 @@ rx_ring_summary:
 		 * 24 |                Buffer Address 3 [63:0]              |
 		 *    +-----------------------------------------------------+
 		 */
-		printk(KERN_INFO "R  [desc]      [buffer 0 63:0 ] "
+		dmm_prtk(KERN_INFO "R  [desc]      [buffer 0 63:0 ] "
 		       "[buffer 1 63:0 ] "
 		       "[buffer 2 63:0 ] [buffer 3 63:0 ] [bi->dma       ] "
 		       "[bi->skb] <-- Ext Pkt Split format\n");
@@ -354,7 +354,7 @@ rx_ring_summary:
 		 *   +------------------------------------------------------+
 		 *   63       48 47    32 31            20 19               0
 		 */
-		printk(KERN_INFO "RWB[desc]      [ck ipid mrqhsh] "
+		dmm_prtk(KERN_INFO "RWB[desc]      [ck ipid mrqhsh] "
 		       "[vl   l0 ee  es] "
 		       "[ l3  l2  l1 hs] [reserved      ] ---------------- "
 		       "[bi->skb] <-- Ext Rx Write-Back format\n");
@@ -366,7 +366,7 @@ rx_ring_summary:
 			    le32_to_cpu(rx_desc_ps->wb.middle.status_error);
 			if (staterr & E1000_RXD_STAT_DD) {
 				/* Descriptor Done */
-				printk(KERN_INFO "RWB[0x%03X]     %016llX "
+				dmm_prtk(KERN_INFO "RWB[0x%03X]     %016llX "
 				       "%016llX %016llX %016llX "
 				       "---------------- %p", i,
 				       (unsigned long long)le64_to_cpu(u1->a),
@@ -375,7 +375,7 @@ rx_ring_summary:
 				       (unsigned long long)le64_to_cpu(u1->d),
 				       buffer_info->skb);
 			} else {
-				printk(KERN_INFO "R  [0x%03X]     %016llX "
+				dmm_prtk(KERN_INFO "R  [0x%03X]     %016llX "
 				       "%016llX %016llX %016llX %016llX %p", i,
 				       (unsigned long long)le64_to_cpu(u1->a),
 				       (unsigned long long)le64_to_cpu(u1->b),
@@ -392,11 +392,11 @@ rx_ring_summary:
 			}
 
 			if (i == rx_ring->next_to_use)
-				printk(KERN_CONT " NTU\n");
+				dmm_prtk(KERN_CONT " NTU\n");
 			else if (i == rx_ring->next_to_clean)
-				printk(KERN_CONT " NTC\n");
+				dmm_prtk(KERN_CONT " NTC\n");
 			else
-				printk(KERN_CONT "\n");
+				dmm_prtk(KERN_CONT "\n");
 		}
 		break;
 	default:
@@ -409,7 +409,7 @@ rx_ring_summary:
 		 * 8 |                      Reserved                       |
 		 *   +-----------------------------------------------------+
 		 */
-		printk(KERN_INFO "R  [desc]      [buf addr 63:0 ] "
+		dmm_prtk(KERN_INFO "R  [desc]      [buf addr 63:0 ] "
 		       "[reserved 63:0 ] [bi->dma       ] "
 		       "[bi->skb] <-- Ext (Read) format\n");
 		/* Extended Receive Descriptor (Write-Back) Format
@@ -425,7 +425,7 @@ rx_ring_summary:
 		 *   +------------------------------------------------------+
 		 *   63       48 47    32 31            20 19               0
 		 */
-		printk(KERN_INFO "RWB[desc]      [cs ipid    mrq] "
+		dmm_prtk(KERN_INFO "RWB[desc]      [cs ipid    mrq] "
 		       "[vt   ln xe  xs] "
 		       "[bi->skb] <-- Ext (Write-Back) format\n");
 
@@ -436,13 +436,13 @@ rx_ring_summary:
 			staterr = le32_to_cpu(rx_desc->wb.upper.status_error);
 			if (staterr & E1000_RXD_STAT_DD) {
 				/* Descriptor Done */
-				printk(KERN_INFO "RWB[0x%03X]     %016llX "
+				dmm_prtk(KERN_INFO "RWB[0x%03X]     %016llX "
 				       "%016llX ---------------- %p", i,
 				       (unsigned long long)le64_to_cpu(u1->a),
 				       (unsigned long long)le64_to_cpu(u1->b),
 				       buffer_info->skb);
 			} else {
-				printk(KERN_INFO "R  [0x%03X]     %016llX "
+				dmm_prtk(KERN_INFO "R  [0x%03X]     %016llX "
 				       "%016llX %016llX %p", i,
 				       (unsigned long long)le64_to_cpu(u1->a),
 				       (unsigned long long)le64_to_cpu(u1->b),
@@ -460,11 +460,11 @@ rx_ring_summary:
 			}
 
 			if (i == rx_ring->next_to_use)
-				printk(KERN_CONT " NTU\n");
+				dmm_prtk(KERN_CONT " NTU\n");
 			else if (i == rx_ring->next_to_clean)
-				printk(KERN_CONT " NTC\n");
+				dmm_prtk(KERN_CONT " NTC\n");
 			else
-				printk(KERN_CONT "\n");
+				dmm_prtk(KERN_CONT "\n");
 		}
 	}
 
@@ -4269,7 +4269,7 @@ static void e1000_print_link_info(struct e1000_adapter *adapter)
 	u32 ctrl = er32(CTRL);
 
 	/* Link status message must follow this format for user tools */
-	printk(KERN_INFO "e1000e: %s NIC Link is Up %d Mbps %s, "
+	dmm_prtk(KERN_INFO "e1000e: %s NIC Link is Up %d Mbps %s, "
 	       "Flow Control: %s\n",
 	       adapter->netdev->name,
 	       adapter->link_speed,
@@ -4511,7 +4511,7 @@ static void e1000_watchdog_task(struct work_struct *work)
 			adapter->link_speed = 0;
 			adapter->link_duplex = 0;
 			/* Link status message must follow this format */
-			printk(KERN_INFO "e1000e: %s NIC Link is Down\n",
+			dmm_prtk(KERN_INFO "e1000e: %s NIC Link is Down\n",
 			       adapter->netdev->name);
 			if (adapter->ecdev)
 				ecdev_set_link(adapter->ecdev, 0);

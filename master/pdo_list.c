@@ -333,12 +333,12 @@ void ec_pdo_list_print(
     const ec_pdo_t *pdo;
 
     if (list_empty(&pl->list)) {
-        printk("(none)");
+        dmm_prtk("(none)");
     } else {
         list_for_each_entry(pdo, &pl->list, list) {
-            printk("0x%04X", pdo->index);
+            dmm_prtk("0x%04X", pdo->index);
             if (pdo->list.next != &pl->list)
-                printk(" ");
+                dmm_prtk(" ");
         }
     }
 }

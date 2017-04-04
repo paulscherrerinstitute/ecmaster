@@ -72,8 +72,11 @@
 							</tool>
 							<tool id="org.eclipse.cdt.build.core.settings.holder.1513123162" name="GNU C" superClass="org.eclipse.cdt.build.core.settings.holder">
 								<option id="org.eclipse.cdt.build.core.settings.holder.incpaths.1219481951" name="Include Paths" superClass="org.eclipse.cdt.build.core.settings.holder.incpaths" valueType="includePath">
-									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/gfa-linux-3.6.11.5-rt37/include/"/>
-									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/gfa-linux-3.6.11.5-rt37/arch/"/>
+									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/denx-linux-4.9.0-rt1/include/"/>
+									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/denx-linux-4.9.0-rt1/arch/"/>
+									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/denx-linux-4.9.0-rt1/arch/powerpc/"/>
+									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/denx-linux-4.9.0-rt1/arch/powerpc/include"/>
+									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/denx-linux-4.9.0-rt1/include/asm-generic"/>
 									<listOptionValue builtIn="false" value="/net/gfa-eldk/export/home/eldk-5.2/powerpc-e500v2/sysroots/i686-eldk-linux/usr/bin/ppce500v2-linux-gnuspe/../../lib/ppce500v2-linux-gnuspe/gcc/powerpc-linux-gnuspe/4.6.4/include"/>
 									<listOptionValue builtIn="false" value="/net/gfa-eldk/export/home/eldk-5.2/powerpc-e500v2/sysroots/i686-eldk-linux/usr/bin/ppce500v2-linux-gnuspe/../../lib/ppce500v2-linux-gnuspe/gcc/powerpc-linux-gnuspe/4.6.4/include-fixed"/>
 									<listOptionValue builtIn="false" value="/afs/psi.ch/group/8431/dmm/cvs/G/DRV/ethercatmaster/2.0/master/"/>
@@ -84,9 +87,6 @@
 									<listOptionValue builtIn="false" value="/opt/eldk-5.2/ethercat-1.5.1/master"/>
 									<listOptionValue builtIn="false" value="/usr/include/libxml2"/>
 									<listOptionValue builtIn="false" value="/usr/local/epics/base-3.14.12/src/libCom/ellLib"/>
-									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/gfa-linux-3.6.11.5-rt37/arch/powerpc/"/>
-									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/gfa-linux-3.6.11.5-rt37/include/asm-generic"/>
-									<listOptionValue builtIn="false" value="/opt/eldk-5.2/kernel/gfa-linux-3.6.11.5-rt37/arch/powerpc/include"/>
 								</option>
 								<option id="org.eclipse.cdt.build.core.settings.holder.symbols.898532192" name="Symbols" superClass="org.eclipse.cdt.build.core.settings.holder.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__GNUC__"/>

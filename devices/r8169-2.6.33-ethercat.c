@@ -37,11 +37,11 @@
 #ifdef RTL8169_DEBUG
 #define assert(expr) \
 	if (!(expr)) {					\
-		printk( "Assertion failed! %s,%s,%s,line=%d\n",	\
+		dmm_prtk( "Assertion failed! %s,%s,%s,line=%d\n",	\
 		#expr,__FILE__,__func__,__LINE__);		\
 	}
 #define dprintk(fmt, args...) \
-	do { printk(KERN_DEBUG PFX fmt, ## args); } while (0)
+	do { dmm_prtk(KERN_DEBUG PFX fmt, ## args); } while (0)
 #else
 #define assert(expr) do {} while (0)
 #define dprintk(fmt, args...)	do {} while (0)
@@ -760,10 +760,10 @@ static void rtl8169_check_link_status(struct net_device *dev,
 		if (tp->link_ok(ioaddr)) {
 			netif_carrier_on(dev);
 			if (netif_msg_ifup(tp))
-				printk(KERN_INFO PFX "%s: link up\n", dev->name);
+				dmm_prtk(KERN_INFO PFX "%s: link up\n", dev->name);
 		} else {
 			if (netif_msg_ifdown(tp))
-				printk(KERN_INFO PFX "%s: link down\n", dev->name);
+				dmm_prtk(KERN_INFO PFX "%s: link down\n", dev->name);
 			netif_carrier_off(dev);
 		}
 		spin_unlock_irqrestore(&tp->lock, flags);
@@ -879,7 +879,7 @@ static int rtl8169_set_speed_tbi(struct net_device *dev,
 		RTL_W32(TBICSR, reg | TBINwEnable | TBINwRestart);
 	else {
 		if (netif_msg_link(tp)) {
-			printk(KERN_WARNING "%s: "
+			dmm_prtk(KERN_WARNING "%s: "
 			       "incorrect speed setting refused in TBI mode\n",
 			       dev->name);
 		}
@@ -918,7 +918,7 @@ static int rtl8169_set_speed_xmii(struct net_device *dev,
 		    (tp->mac_version != RTL_GIGA_MAC_VER_16)) {
 			giga_ctrl |= ADVERTISE_1000FULL | ADVERTISE_1000HALF;
 		} else if (netif_msg_link(tp)) {
-			printk(KERN_INFO "%s: PHY does not support 1000Mbps.\n",
+			dmm_prtk(KERN_INFO "%s: PHY does not support 1000Mbps.\n",
 			       dev->name);
 		}
 
@@ -2723,7 +2723,7 @@ static void rtl8169_phy_timer(unsigned long __opaque)
 		goto out_unlock;
 
 	if (netif_msg_link(tp))
-		printk(KERN_WARNING "%s: PHY reset until link up\n", dev->name);
+		dmm_prtk(KERN_WARNING "%s: PHY reset until link up\n", dev->name);
 
 	tp->phy_reset_enable(ioaddr);
 
@@ -2796,7 +2796,7 @@ static void rtl8169_phy_reset(struct net_device *dev,
 		msleep(1);
 	}
 	if (netif_msg_link(tp))
-		printk(KERN_ERR "%s: PHY reset failed.\n", dev->name);
+		dmm_prtk(KERN_ERR "%s: PHY reset failed.\n", dev->name);
 }
 
 static void rtl8169_init_phy(struct net_device *dev, struct rtl8169_private *tp)
@@ -2831,7 +2831,7 @@ static void rtl8169_init_phy(struct net_device *dev, struct rtl8169_private *tp)
 	rtl8169_set_speed(dev, AUTONEG_ENABLE, SPEED_1000, DUPLEX_FULL);
 
 	if ((RTL_R8(PHYstatus) & TBI_Enable) && netif_msg_link(tp))
-		printk(KERN_INFO PFX "%s: TBI auto-negotiating\n", dev->name);
+		dmm_prtk(KERN_INFO PFX "%s: TBI auto-negotiating\n", dev->name);
 }
 
 static void rtl_rar_set(struct rtl8169_private *tp, u8 *addr)
@@ -3001,7 +3001,7 @@ rtl8169_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	int rc;
 
 	if (netif_msg_drv(&debug)) {
-		printk(KERN_INFO "%s Gigabit Ethernet driver %s loaded\n",
+		dmm_prtk(KERN_INFO "%s Gigabit Ethernet driver %s loaded\n",
 		       MODULENAME, RTL8169_VERSION);
 	}
 
@@ -3212,7 +3212,7 @@ rtl8169_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
 	if (netif_msg_probe(tp)) {
 		u32 xid = RTL_R32(TxConfig) & 0x9cf0f8ff;
 
-		printk(KERN_INFO "%s: %s at 0x%lx, "
+		dmm_prtk(KERN_INFO "%s: %s at 0x%lx, "
 		       "%2.2x:%2.2x:%2.2x:%2.2x:%2.2x:%2.2x, "
 		       "XID %08x IRQ %d\n",
 		       dev->name,
@@ -3284,7 +3284,7 @@ static void rtl8169_set_rxbufsize(struct rtl8169_private *tp,
 	unsigned int max_frame = mtu + VLAN_ETH_HLEN + ETH_FCS_LEN;
 
 	if (max_frame != 16383)
-		printk(KERN_WARNING "WARNING! Changing of MTU on this NIC"
+		dmm_prtk(KERN_WARNING "WARNING! Changing of MTU on this NIC"
 			"May lead to frame reception errors!\n");
 
 	tp->rx_buf_sz = (max_frame > RX_BUF_SIZE) ? max_frame : RX_BUF_SIZE;
@@ -3811,7 +3811,7 @@ static void rtl_hw_start_8168(struct net_device *dev)
 	break;
 
 	default:
-		printk(KERN_ERR PFX "%s: unknown chipset (mac_version = %d).\n",
+		dmm_prtk(KERN_ERR PFX "%s: unknown chipset (mac_version = %d).\n",
 			dev->name, tp->mac_version);
 	break;
 	}
@@ -4192,7 +4192,7 @@ static void rtl8169_reinit_task(struct work_struct *work)
 	ret = rtl8169_open(dev);
 	if (unlikely(ret < 0)) {
 		if (net_ratelimit() && netif_msg_drv(tp)) {
-			printk(KERN_ERR PFX "%s: reinit failure (status = %d)."
+			dmm_prtk(KERN_ERR PFX "%s: reinit failure (status = %d)."
 			       " Rescheduling.\n", dev->name, ret);
 		}
 		rtl8169_schedule_work(dev, rtl8169_reinit_task);
@@ -4225,7 +4225,7 @@ static void rtl8169_reset_task(struct work_struct *work)
 		rtl8169_check_link_status(dev, tp, tp->mmio_addr);
 	} else {
 		if (net_ratelimit() && netif_msg_intr(tp)) {
-			printk(KERN_EMERG PFX "%s: Rx buffers shortage\n",
+			dmm_prtk(KERN_EMERG PFX "%s: Rx buffers shortage\n",
 			       dev->name);
 		}
 		rtl8169_schedule_work(dev, rtl8169_reset_task);
@@ -4319,7 +4319,7 @@ static netdev_tx_t rtl8169_start_xmit(struct sk_buff *skb,
 
 	if (unlikely(TX_BUFFS_AVAIL(tp) < skb_shinfo(skb)->nr_frags)) {
 		if (netif_msg_drv(tp)) {
-			printk(KERN_ERR
+			dmm_prtk(KERN_ERR
 			       "%s: BUG! Tx Ring full when queue awake!\n",
 			       dev->name);
 		}
@@ -4388,7 +4388,7 @@ static void rtl8169_pcierr_interrupt(struct net_device *dev)
 	pci_read_config_word(pdev, PCI_STATUS, &pci_status);
 
 	if (netif_msg_intr(tp)) {
-		printk(KERN_ERR
+		dmm_prtk(KERN_ERR
 		       "%s: PCI error (cmd = 0x%04x, status = 0x%04x).\n",
 		       dev->name, pci_cmd, pci_status);
 	}
@@ -4416,7 +4416,7 @@ static void rtl8169_pcierr_interrupt(struct net_device *dev)
 	/* The infamous DAC f*ckup only happens at boot time */
 	if ((tp->cp_cmd & PCIDAC) && !tp->dirty_rx && !tp->cur_rx) {
 		if (netif_msg_intr(tp))
-			printk(KERN_INFO "%s: disabling PCI DAC.\n", dev->name);
+			dmm_prtk(KERN_INFO "%s: disabling PCI DAC.\n", dev->name);
 		tp->cp_cmd &= ~PCIDAC;
 		RTL_W16(CPlusCmd, tp->cp_cmd);
 		dev->features &= ~NETIF_F_HIGHDMA;
@@ -4545,7 +4545,7 @@ static int rtl8169_rx_interrupt(struct net_device *dev,
 			break;
 		if (unlikely(status & RxRES)) {
 			if (netif_msg_rx_err(tp)) {
-				printk(KERN_INFO
+				dmm_prtk(KERN_INFO
 				       "%s: Rx ERROR. status = %08x\n",
 				       dev->name, status);
 			}
@@ -4631,7 +4631,7 @@ static int rtl8169_rx_interrupt(struct net_device *dev,
 	} else {
 		delta = rtl8169_rx_fill(tp, dev, tp->dirty_rx, tp->cur_rx);
 		if (!delta && count && netif_msg_intr(tp))
-			printk(KERN_INFO "%s: no Rx buffer allocated\n", dev->name);
+			dmm_prtk(KERN_INFO "%s: no Rx buffer allocated\n", dev->name);
 		tp->dirty_rx += delta;
 
 		/*
@@ -4642,7 +4642,7 @@ static int rtl8169_rx_interrupt(struct net_device *dev,
 		 * - how do others driver handle this condition (Uh oh...).
 		 */
 		if ((tp->dirty_rx + NUM_RX_DESC == tp->cur_rx) && netif_msg_intr(tp))
-			printk(KERN_EMERG "%s: Rx buffers exhausted\n", dev->name);
+			dmm_prtk(KERN_EMERG "%s: Rx buffers exhausted\n", dev->name);
 	}
 
 	return count;
@@ -4699,7 +4699,7 @@ static irqreturn_t rtl8169_interrupt(int irq, void *dev_instance)
 			if (likely(napi_schedule_prep(&tp->napi)))
 				__napi_schedule(&tp->napi);
 			else if (netif_msg_intr(tp)) {
-				printk(KERN_INFO "%s: interrupt %04x in poll\n",
+				dmm_prtk(KERN_INFO "%s: interrupt %04x in poll\n",
 				dev->name, status);
 			}
 		}
@@ -4859,7 +4859,7 @@ static void rtl_set_rx_mode(struct net_device *dev)
 	if (dev->flags & IFF_PROMISC) {
 		/* Unconditionally log net taps. */
 		if (netif_msg_link(tp)) {
-			printk(KERN_NOTICE "%s: Promiscuous mode enabled.\n",
+			dmm_prtk(KERN_NOTICE "%s: Promiscuous mode enabled.\n",
 			       dev->name);
 		}
 		rx_mode =

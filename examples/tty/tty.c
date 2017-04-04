@@ -87,9 +87,9 @@ void check_domain1_state(void)
     up(&master_sem);
 
     if (ds.working_counter != domain1_state.working_counter)
-        printk(KERN_INFO PFX "Domain1: WC %u.\n", ds.working_counter);
+        dmm_prtk(KERN_INFO PFX "Domain1: WC %u.\n", ds.working_counter);
     if (ds.wc_state != domain1_state.wc_state)
-        printk(KERN_INFO PFX "Domain1: State %u.\n", ds.wc_state);
+        dmm_prtk(KERN_INFO PFX "Domain1: State %u.\n", ds.wc_state);
 
     domain1_state = ds;
 }
@@ -105,11 +105,11 @@ void check_master_state(void)
     up(&master_sem);
 
     if (ms.slaves_responding != master_state.slaves_responding)
-        printk(KERN_INFO PFX "%u slave(s).\n", ms.slaves_responding);
+        dmm_prtk(KERN_INFO PFX "%u slave(s).\n", ms.slaves_responding);
     if (ms.al_states != master_state.al_states)
-        printk(KERN_INFO PFX "AL states: 0x%02X.\n", ms.al_states);
+        dmm_prtk(KERN_INFO PFX "AL states: 0x%02X.\n", ms.al_states);
     if (ms.link_up != master_state.link_up)
-        printk(KERN_INFO PFX "Link is %s.\n", ms.link_up ? "up" : "down");
+        dmm_prtk(KERN_INFO PFX "Link is %s.\n", ms.link_up ? "up" : "down");
 
     master_state = ms;
 }
@@ -176,11 +176,11 @@ int __init init_mini_module(void)
     int ret = -1;
     ec_slave_config_t *sc;
 
-    printk(KERN_INFO PFX "Starting...\n");
+    dmm_prtk(KERN_INFO PFX "Starting...\n");
 
     master = ecrt_request_master(0);
     if (!master) {
-        printk(KERN_ERR PFX "Requesting master 0 failed.\n");
+        dmm_prtk(KERN_ERR PFX "Requesting master 0 failed.\n");
         ret = -EBUSY;
         goto out_return;
     }
@@ -188,47 +188,47 @@ int __init init_mini_module(void)
     sema_init(&master_sem, 1);
     ecrt_master_callbacks(master, send_callback, receive_callback, master);
 
-    printk(KERN_INFO PFX "Registering domain...\n");
+    dmm_prtk(KERN_INFO PFX "Registering domain...\n");
     if (!(domain1 = ecrt_master_create_domain(master))) {
-        printk(KERN_ERR PFX "Domain creation failed!\n");
+        dmm_prtk(KERN_ERR PFX "Domain creation failed!\n");
         goto out_release_master;
     }
 
     // Create configuration for bus coupler
     sc = ecrt_master_slave_config(master, BusCouplerPos, Beckhoff_EK1100);
     if (!sc) {
-        printk(KERN_ERR PFX "Failed to create slave config.\n");
+        dmm_prtk(KERN_ERR PFX "Failed to create slave config.\n");
         ret = -ENOMEM;
         goto out_release_master;
     }
 
     create_serial_devices(master, domain1);
 
-    printk(KERN_INFO PFX "Activating master...\n");
+    dmm_prtk(KERN_INFO PFX "Activating master...\n");
     if (ecrt_master_activate(master)) {
-        printk(KERN_ERR PFX "Failed to activate master!\n");
+        dmm_prtk(KERN_ERR PFX "Failed to activate master!\n");
         goto out_free_serial;
     }
 
     // Get internal process data for domain
     domain1_pd = ecrt_domain_data(domain1);
 
-    printk(KERN_INFO PFX "Starting cyclic sample thread.\n");
+    dmm_prtk(KERN_INFO PFX "Starting cyclic sample thread.\n");
     init_timer(&timer);
     timer.function = cyclic_task;
     timer.expires = jiffies + 10;
     add_timer(&timer);
 
-    printk(KERN_INFO PFX "Started.\n");
+    dmm_prtk(KERN_INFO PFX "Started.\n");
     return 0;
 
 out_free_serial:
     free_serial_devices();
 out_release_master:
-    printk(KERN_ERR PFX "Releasing master...\n");
+    dmm_prtk(KERN_ERR PFX "Releasing master...\n");
     ecrt_release_master(master);
 out_return:
-    printk(KERN_ERR PFX "Failed to load. Aborting.\n");
+    dmm_prtk(KERN_ERR PFX "Failed to load. Aborting.\n");
     return ret;
 }
 
@@ -236,16 +236,16 @@ out_return:
 
 void __exit cleanup_mini_module(void)
 {
-    printk(KERN_INFO PFX "Stopping...\n");
+    dmm_prtk(KERN_INFO PFX "Stopping...\n");
 
     del_timer_sync(&timer);
 
     free_serial_devices();
 
-    printk(KERN_INFO PFX "Releasing master...\n");
+    dmm_prtk(KERN_INFO PFX "Releasing master...\n");
     ecrt_release_master(master);
 
-    printk(KERN_INFO PFX "Unloading.\n");
+    dmm_prtk(KERN_INFO PFX "Unloading.\n");
 }
 
 /*****************************************************************************/

@@ -81,7 +81,7 @@
 #endif
 
 #define EC_MASTER_INFO(master, fmt, args...) \
-    printk(K_INFO "EtherCAT %u: " fmt, master->index, ##args)
+    dmm_prtk(K_INFO "EtherCAT %u: " fmt, master->index, ##args)
 
 /** Convenience macro for printing master-specific errors to syslog.
  *
@@ -93,7 +93,7 @@
  * \param args arguments (optional)
  */
 #define EC_MASTER_ERR(master, fmt, args...) \
-    printk(K_ERR "EtherCAT ERROR %u: " fmt, master->index, ##args)
+    dmm_prtk(K_ERR "EtherCAT ERROR %u: " fmt, master->index, ##args)
 
 /** Convenience macro for printing master-specific warnings to syslog.
  *
@@ -105,7 +105,7 @@
  * \param args arguments (optional)
  */
 #define EC_MASTER_WARN(master, fmt, args...) \
-    printk(K_WARNING "EtherCAT WARNING %u: " fmt, master->index, ##args)
+    dmm_prtk(K_WARNING "EtherCAT WARNING %u: " fmt, master->index, ##args)
 
 /** Convenience macro for printing master-specific debug messages to syslog.
  *
@@ -121,7 +121,7 @@
 #define EC_MASTER_DBG(master, level, fmt, args...) \
     do { \
         if (master->debug_level >= level) { \
-            printk(KERN_DEBUG "EtherCAT DEBUG %u: " fmt, \
+            dmm_prtk(KERN_DEBUG "EtherCAT DEBUG %u: " fmt, \
                     master->index, ##args); \
         } \
     } while (0)

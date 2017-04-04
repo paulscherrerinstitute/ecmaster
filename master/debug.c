@@ -273,3 +273,29 @@ struct net_device_stats *ec_dbgdev_stats(
 }
 
 /*****************************************************************************/
+
+
+void dmm_prtk( const char *format , ... )
+{
+	char *f;
+	va_list arglist;
+	int len = strlen( format );
+	va_start( arglist, format );
+//	printk( KERN_DEBUG "test---->%s<---------------------------------", format);
+
+	if( likely( len > 0 ) )
+		if( format[0] != '\001' && format[len-1] != '\n' )
+		{
+			if( (f = kzalloc( len + 3, GFP_KERNEL)) )
+				strcat( memcpy( f, KERN_CONT, 2 ), format );
+
+			vprintk( f, arglist );
+			va_end( arglist );
+			kfree( f );
+			return;
+		}
+
+	vprintk( format, arglist );
+	va_end( arglist );
+}
+

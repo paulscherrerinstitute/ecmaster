@@ -129,7 +129,7 @@ int __init ec_tty_init_module(void)
 {
     int i, ret = 0;
 
-    printk(KERN_INFO PFX "TTY driver %s\n", EC_MASTER_VERSION);
+    dmm_prtk(KERN_INFO PFX "TTY driver %s\n", EC_MASTER_VERSION);
 
     sema_init(&tty_sem, 1);
 
@@ -139,7 +139,7 @@ int __init ec_tty_init_module(void)
 
     tty_driver = alloc_tty_driver(EC_TTY_MAX_DEVICES);
     if (!tty_driver) {
-        printk(KERN_ERR PFX "Failed to allocate tty driver.\n");
+        dmm_prtk(KERN_ERR PFX "Failed to allocate tty driver.\n");
         ret = -ENOMEM;
         goto out_return;
     }
@@ -157,7 +157,7 @@ int __init ec_tty_init_module(void)
 
     ret = tty_register_driver(tty_driver);
     if (ret) {
-        printk(KERN_ERR PFX "Failed to register tty driver.\n");
+        dmm_prtk(KERN_ERR PFX "Failed to register tty driver.\n");
         goto out_put;
     }
 
@@ -179,7 +179,7 @@ void __exit ec_tty_cleanup_module(void)
 {
     tty_unregister_driver(tty_driver);
     put_tty_driver(tty_driver);
-    printk(KERN_INFO PFX "Module unloading.\n");
+    dmm_prtk(KERN_INFO PFX "Module unloading.\n");
 }
 
 /******************************************************************************
@@ -209,7 +209,7 @@ int ec_tty_init(ec_tty_t *t, int minor,
 
     t->dev = tty_register_device(tty_driver, t->minor, NULL);
     if (IS_ERR(t->dev)) {
-        printk(KERN_ERR PFX "Failed to register tty device.\n");
+        dmm_prtk(KERN_ERR PFX "Failed to register tty device.\n");
         return PTR_ERR(t->dev);
     }
 
@@ -231,7 +231,7 @@ int ec_tty_init(ec_tty_t *t, int minor,
     }
     ret = t->ops.cflag_changed(t->cb_data, cflag);
     if (ret) {
-        printk(KERN_ERR PFX "ERROR: Initial cflag 0x%x not accepted.\n",
+        dmm_prtk(KERN_ERR PFX "ERROR: Initial cflag 0x%x not accepted.\n",
                 cflag);
         tty_unregister_device(tty_driver, t->minor);
         return ret;
@@ -326,7 +326,7 @@ void ec_tty_wakeup(unsigned long data)
     if (tty->wakeup) {
         if (tty->tty) {
 #if EC_TTY_DEBUG >= 1
-            printk(KERN_INFO PFX "Waking up.\n");
+            dmm_prtk(KERN_INFO PFX "Waking up.\n");
 #endif
             tty_wakeup(tty->tty);
         }
@@ -340,7 +340,7 @@ void ec_tty_wakeup(unsigned long data)
         int space = tty_prepare_flip_string(tty->tty, &cbuf, to_recv);
 
         if (space < to_recv) {
-            printk(KERN_WARNING PFX "Insufficient space to_recv=%d space=%d\n",
+            dmm_prtk(KERN_WARNING PFX "Insufficient space to_recv=%d space=%d\n",
                     to_recv, space);
         }
 
@@ -354,7 +354,7 @@ void ec_tty_wakeup(unsigned long data)
             unsigned int i;
 
 #if EC_TTY_DEBUG >= 1
-            printk(KERN_INFO PFX "Pushing %u bytes to TTY core.\n", to_recv);
+            dmm_prtk(KERN_INFO PFX "Pushing %u bytes to TTY core.\n", to_recv);
 #endif
 
             for (i = 0; i < to_recv; i++) {
@@ -380,7 +380,7 @@ static int ec_tty_open(struct tty_struct *tty, struct file *file)
     int line = tty->index;
 
 #if EC_TTY_DEBUG >= 1
-    printk(KERN_INFO PFX "%s(tty=%p, file=%p): Opening line %i.\n",
+    dmm_prtk(KERN_INFO PFX "%s(tty=%p, file=%p): Opening line %i.\n",
             __func__, tty, file, line);
 #endif
 
@@ -413,7 +413,7 @@ static void ec_tty_close(struct tty_struct *tty, struct file *file)
     ec_tty_t *t = (ec_tty_t *) tty->driver_data;
 
 #if EC_TTY_DEBUG >= 1
-    printk(KERN_INFO PFX "%s(tty=%p, file=%p): Closing line %i.\n",
+    dmm_prtk(KERN_INFO PFX "%s(tty=%p, file=%p): Closing line %i.\n",
             __func__, tty, file, tty->index);
 #endif
 
@@ -438,7 +438,7 @@ static int ec_tty_write(
     unsigned int data_size, i;
 
 #if EC_TTY_DEBUG >= 1
-    printk(KERN_INFO PFX "%s(count=%i)\n", __func__, count);
+    dmm_prtk(KERN_INFO PFX "%s(count=%i)\n", __func__, count);
 #endif
 
     if (count <= 0) {
@@ -452,7 +452,7 @@ static int ec_tty_write(
     }
 
 #if EC_TTY_DEBUG >= 1
-    printk(KERN_INFO PFX "%s(): %u bytes written.\n", __func__, data_size);
+    dmm_prtk(KERN_INFO PFX "%s(): %u bytes written.\n", __func__, data_size);
 #endif
     return data_size;
 }
@@ -468,7 +468,7 @@ static void ec_tty_put_char(struct tty_struct *tty, unsigned char ch)
     ec_tty_t *t = (ec_tty_t *) tty->driver_data;
 
 #if EC_TTY_DEBUG >= 1
-    printk(KERN_INFO PFX "%s(): c=%02x.\n", __func__, (unsigned int) ch);
+    dmm_prtk(KERN_INFO PFX "%s(): c=%02x.\n", __func__, (unsigned int) ch);
 #endif
 
     if (ec_tty_tx_space(t)) {
@@ -478,7 +478,7 @@ static void ec_tty_put_char(struct tty_struct *tty, unsigned char ch)
         return 1;
 #endif
     } else {
-        printk(KERN_WARNING PFX "%s(): Dropped a byte!\n", __func__);
+        dmm_prtk(KERN_WARNING PFX "%s(): Dropped a byte!\n", __func__);
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 26)
         return 0;
 #endif
@@ -493,7 +493,7 @@ static int ec_tty_write_room(struct tty_struct *tty)
     int ret = ec_tty_tx_space(t);
 
 #if EC_TTY_DEBUG >= 2
-    printk(KERN_INFO PFX "%s() = %i.\n", __func__, ret);
+    dmm_prtk(KERN_INFO PFX "%s() = %i.\n", __func__, ret);
 #endif
 
     return ret;
@@ -507,13 +507,13 @@ static int ec_tty_chars_in_buffer(struct tty_struct *tty)
     int ret;
 
 #if EC_TTY_DEBUG >= 2
-    printk(KERN_INFO PFX "%s().\n", __func__);
+    dmm_prtk(KERN_INFO PFX "%s().\n", __func__);
 #endif
 
     ret = ec_tty_tx_size(t);
 
 #if EC_TTY_DEBUG >= 2
-    printk(KERN_INFO PFX "%s() = %i.\n", __func__, ret);
+    dmm_prtk(KERN_INFO PFX "%s() = %i.\n", __func__, ret);
 #endif
 
     return ret;
@@ -524,7 +524,7 @@ static int ec_tty_chars_in_buffer(struct tty_struct *tty)
 static void ec_tty_flush_buffer(struct tty_struct *tty)
 {
 #if EC_TTY_DEBUG >= 2
-    printk(KERN_INFO PFX "%s().\n", __func__);
+    dmm_prtk(KERN_INFO PFX "%s().\n", __func__);
 #endif
 
     // FIXME empty ring buffer
@@ -542,7 +542,7 @@ static int ec_tty_ioctl(struct tty_struct *tty,
     int ret = -ENOTTY;
 
 #if EC_TTY_DEBUG >= 2
-    printk(KERN_INFO PFX "%s(tty=%p, "
+    dmm_prtk(KERN_INFO PFX "%s(tty=%p, "
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 39)
             "file=%p, "
 #endif
@@ -552,7 +552,7 @@ static int ec_tty_ioctl(struct tty_struct *tty,
             file,
 #endif
             cmd, arg);
-    printk(KERN_INFO PFX "decoded: type=%02x nr=%u\n",
+    dmm_prtk(KERN_INFO PFX "decoded: type=%02x nr=%u\n",
             _IOC_TYPE(cmd), _IOC_NR(cmd));
 #endif
 
@@ -568,7 +568,7 @@ static int ec_tty_ioctl(struct tty_struct *tty,
 
         default:
 #if EC_TTY_DEBUG >= 2
-            printk(KERN_INFO PFX "no ioctl() -> handled by tty core!\n");
+            dmm_prtk(KERN_INFO PFX "no ioctl() -> handled by tty core!\n");
 #endif
             ret = -ENOIOCTLCMD;
             break;
@@ -587,7 +587,7 @@ static void ec_tty_set_termios(struct tty_struct *tty,
     struct ktermios *termios;
 
 #if EC_TTY_DEBUG >= 2
-    printk(KERN_INFO PFX "%s().\n", __func__);
+    dmm_prtk(KERN_INFO PFX "%s().\n", __func__);
 #endif
 
     termios =
@@ -602,13 +602,13 @@ static void ec_tty_set_termios(struct tty_struct *tty,
         return;
 
 #if EC_TTY_DEBUG >= 2
-    printk(KERN_INFO "cflag changed from %x to %x.\n",
+    dmm_prtk(KERN_INFO "cflag changed from %x to %x.\n",
             old_termios->c_cflag, termios->c_cflag);
 #endif
 
     ret = t->ops.cflag_changed(t->cb_data, termios->c_cflag);
     if (ret) {
-        printk(KERN_ERR PFX "ERROR: cflag 0x%x not accepted.\n",
+        dmm_prtk(KERN_ERR PFX "ERROR: cflag 0x%x not accepted.\n",
                 termios->c_cflag);
         termios->c_cflag = old_termios->c_cflag;
     }
@@ -619,7 +619,7 @@ static void ec_tty_set_termios(struct tty_struct *tty,
 static void ec_tty_stop(struct tty_struct *tty)
 {
 #if EC_TTY_DEBUG >= 2
-    printk(KERN_INFO PFX "%s().\n", __func__);
+    dmm_prtk(KERN_INFO PFX "%s().\n", __func__);
 #endif
 }
 
@@ -628,7 +628,7 @@ static void ec_tty_stop(struct tty_struct *tty)
 static void ec_tty_start(struct tty_struct *tty)
 {
 #if EC_TTY_DEBUG >= 2
-    printk(KERN_INFO PFX "%s().\n", __func__);
+    dmm_prtk(KERN_INFO PFX "%s().\n", __func__);
 #endif
 }
 
@@ -637,7 +637,7 @@ static void ec_tty_start(struct tty_struct *tty)
 static void ec_tty_hangup(struct tty_struct *tty)
 {
 #if EC_TTY_DEBUG >= 2
-    printk(KERN_INFO PFX "%s().\n", __func__);
+    dmm_prtk(KERN_INFO PFX "%s().\n", __func__);
 #endif
 }
 
@@ -650,7 +650,7 @@ static void ec_tty_break(struct tty_struct *tty, int break_state)
 #endif
 {
 #if EC_TTY_DEBUG >= 2
-    printk(KERN_INFO PFX "%s(break_state = %i).\n", __func__, break_state);
+    dmm_prtk(KERN_INFO PFX "%s(break_state = %i).\n", __func__, break_state);
 #endif
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)
@@ -663,7 +663,7 @@ static void ec_tty_break(struct tty_struct *tty, int break_state)
 static void ec_tty_send_xchar(struct tty_struct *tty, char ch)
 {
 #if EC_TTY_DEBUG >= 2
-    printk(KERN_INFO PFX "%s(ch=%02x).\n", __func__, (unsigned int) ch);
+    dmm_prtk(KERN_INFO PFX "%s(ch=%02x).\n", __func__, (unsigned int) ch);
 #endif
 }
 
@@ -672,7 +672,7 @@ static void ec_tty_send_xchar(struct tty_struct *tty, char ch)
 static void ec_tty_wait_until_sent(struct tty_struct *tty, int timeout)
 {
 #if EC_TTY_DEBUG >= 2
-    printk(KERN_INFO PFX "%s(timeout=%i).\n", __func__, timeout);
+    dmm_prtk(KERN_INFO PFX "%s(timeout=%i).\n", __func__, timeout);
 #endif
 }
 
@@ -711,12 +711,12 @@ ec_tty_t *ectty_create(const ec_tty_operations_t *ops, void *cb_data)
 
     for (minor = 0; minor < EC_TTY_MAX_DEVICES; minor++) {
         if (!ttys[minor]) {
-            printk(KERN_INFO PFX "Creating TTY interface %i.\n", minor);
+            dmm_prtk(KERN_INFO PFX "Creating TTY interface %i.\n", minor);
 
             tty = kmalloc(sizeof(ec_tty_t), GFP_KERNEL);
             if (!tty) {
                 up(&tty_sem);
-                printk(KERN_ERR PFX "Failed to allocate memory.\n");
+                dmm_prtk(KERN_ERR PFX "Failed to allocate memory.\n");
                 return ERR_PTR(-ENOMEM);
             }
 
@@ -734,7 +734,7 @@ ec_tty_t *ectty_create(const ec_tty_operations_t *ops, void *cb_data)
     }
 
     up(&tty_sem);
-    printk(KERN_ERR PFX "No free interfaces avaliable.\n");
+    dmm_prtk(KERN_ERR PFX "No free interfaces avaliable.\n");
     return ERR_PTR(-EBUSY);
 }
 
@@ -742,7 +742,7 @@ ec_tty_t *ectty_create(const ec_tty_operations_t *ops, void *cb_data)
 
 void ectty_free(ec_tty_t *tty)
 {
-    printk(KERN_INFO PFX "Freeing TTY interface %i.\n", tty->minor);
+    dmm_prtk(KERN_INFO PFX "Freeing TTY interface %i.\n", tty->minor);
 
     ec_tty_clear(tty);
     ttys[tty->minor] = NULL;
@@ -757,7 +757,7 @@ unsigned int ectty_tx_data(ec_tty_t *tty, uint8_t *buffer, size_t size)
 
     if (data_size)  {
 #if EC_TTY_DEBUG >= 1
-        printk(KERN_INFO PFX "Fetching %u bytes to send.\n", data_size);
+        dmm_prtk(KERN_INFO PFX "Fetching %u bytes to send.\n", data_size);
 #endif
     }
 
@@ -783,13 +783,13 @@ void ectty_rx_data(ec_tty_t *tty, const uint8_t *buffer, size_t size)
         unsigned int i;
 
 #if EC_TTY_DEBUG >= 1
-        printk(KERN_INFO PFX "Received %u bytes.\n", size);
+        dmm_prtk(KERN_INFO PFX "Received %u bytes.\n", size);
 #endif
 
         to_recv = min(ec_tty_rx_space(tty), size);
 
         if (to_recv < size) {
-            printk(KERN_WARNING PFX "Dropping %u bytes.\n", size - to_recv);
+            dmm_prtk(KERN_WARNING PFX "Dropping %u bytes.\n", size - to_recv);
         }
 
         for (i = 0; i < size; i++) {

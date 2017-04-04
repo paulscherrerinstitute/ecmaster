@@ -212,10 +212,10 @@ static int __init
 e1000_init_module(void)
 {
 	int ret;
-	printk(KERN_INFO "%s - version %s\n",
+	dmm_prtk(KERN_INFO "%s - version %s\n",
 	       e1000_driver_string, e1000_driver_version);
 
-	printk(KERN_INFO "%s\n", e1000_copyright);
+	dmm_prtk(KERN_INFO "%s\n", e1000_copyright);
 
 	ret = pci_module_init(&e1000_driver);
 

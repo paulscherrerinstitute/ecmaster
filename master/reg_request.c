@@ -38,6 +38,7 @@
 #include <linux/slab.h>
 
 #include "reg_request.h"
+#include "debug.h"
 
 /*****************************************************************************/
 

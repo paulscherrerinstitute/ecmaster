@@ -244,10 +244,10 @@ static int __init
 e1000_init_module(void)
 {
 	int ret;
-	printk(KERN_INFO "%s - version %s\n",
+	dmm_prtk(KERN_INFO "%s - version %s\n",
 	       e1000_driver_string, e1000_driver_version);
 
-	printk(KERN_INFO "%s\n", e1000_copyright);
+	dmm_prtk(KERN_INFO "%s\n", e1000_copyright);
 
 	ret = pci_module_init(&e1000_driver);
 
@@ -967,7 +967,7 @@ e1000_probe(struct pci_dev *pdev,
 	}
 
 	for (i = 0; i < 6; i++)
-		printk("%2.2x%c", netdev->dev_addr[i], i == 5 ? '\n' : ':');
+		dmm_prtk("%2.2x%c", netdev->dev_addr[i], i == 5 ? '\n' : ':');
 
 	/* reset the hardware with the new settings */
 	e1000_reset(adapter);
@@ -4946,7 +4946,7 @@ static pci_ers_result_t e1000_io_slot_reset(struct pci_dev *pdev)
 	struct e1000_adapter *adapter = netdev->priv;
 
 	if (pci_enable_device(pdev)) {
-		printk(KERN_ERR "e1000: Cannot re-enable PCI device after reset.\n");
+		dmm_prtk(KERN_ERR "e1000: Cannot re-enable PCI device after reset.\n");
 		return PCI_ERS_RESULT_DISCONNECT;
 	}
 	pci_set_master(pdev);
@@ -4980,7 +4980,7 @@ static void e1000_io_resume(struct pci_dev *pdev)
 
 	if (adapter->ecdev || netif_running(netdev)) {
 		if (e1000_up(adapter)) {
-			printk("e1000: can't bring device back up after reset\n");
+			dmm_prtk("e1000: can't bring device back up after reset\n");
 			return;
 		}
 	}

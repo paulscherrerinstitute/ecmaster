@@ -453,138 +453,100 @@ uint8_t *ecrt_domain_data(ec_domain_t *domain)
     return domain->data;
 }
 
+
+
+
+
+#include "linux/timekeeping.h"
+
+#define MAX_STIMERS	50
+#define NSEC_PER_SEC	1000000000L
+struct timespec t_sub(struct timespec a, struct timespec b)
+{
+    struct timespec result;
+    result.tv_nsec = a.tv_nsec - b.tv_nsec;
+    result.tv_sec  = a.tv_sec  - b.tv_sec;
+    while(result.tv_nsec < 0)
+    {
+        result.tv_nsec += NSEC_PER_SEC;
+        result.tv_sec  -= 1;
+    }
+    return result;
+}
+
+static struct timespec __tstart[MAX_STIMERS] = { { 0, 0 } },
+					__tend[MAX_STIMERS] = { { 0, 0 } },
+					__tdelta[MAX_STIMERS] = { { 0, 0 } },
+					__tmax[MAX_STIMERS] = { { 0, 0 } },
+					__tsave[MAX_STIMERS] = { { 0, 0 } };
+
+void st_start( int no )
+{
+	getrawmonotonic( &__tstart[no] );
+}
+void st_end( int no )
+{
+	int i;
+	static int ccnt = 0;
+
+	getrawmonotonic( &__tend[no] );
+	__tdelta[no] = t_sub( __tend[no], __tstart[no] );
+
+#if 0
+	if( __tdelta[no].tv_sec >= __tmax[no].tv_sec )
+		if( __tdelta[no].tv_nsec >= __tmax[no].tv_nsec )
+		{
+			__tmax[no].tv_sec =__tdelta[no].tv_sec;
+			__tmax[no].tv_nsec =__tdelta[no].tv_nsec;
+		}
+#endif
+
+	if( ++ccnt > 60000 )
+	{
+		ccnt = 0;
+		for( i = 0; i < 1; i++ )
+		{
+			printk( "[%d] %ld.%09ld\n", i, __tdelta[i].tv_sec, __tdelta[i].tv_nsec );
+		}
+	}
+
+	if( no == 0 )
+	{
+		if( __tdelta[no].tv_nsec > 999999 )
+			for( i = 0; i < 1; i++ )
+				printk( "-------------> [%d] %ld.%09ld\n", i, __tdelta[i].tv_sec, __tdelta[i].tv_nsec );
+	}
+
+}
+
+
 /*****************************************************************************/
 
 void ecrt_domain_process(ec_domain_t *domain)
 {
     uint16_t wc_sum[EC_MAX_NUM_DEVICES] = {}, wc_total;
     ec_datagram_pair_t *pair;
-#if EC_MAX_NUM_DEVICES > 1
-    uint16_t datagram_pair_wc, redundant_wc;
-    unsigned int datagram_offset;
-    ec_fmmu_config_t *fmmu = list_first_entry(&domain->fmmu_configs,
-            ec_fmmu_config_t, list);
-    unsigned int redundancy;
-#endif
     unsigned int dev_idx, wc_change;
 
-#if DEBUG_REDUNDANCY
-    EC_MASTER_DBG(domain->master, 1, "domain %u process\n", domain->index);
-#endif
+st_start(0 );
 
+#ifdef AAAA
+st_start(1 );
+#endif
     list_for_each_entry(pair, &domain->datagram_pairs, list) {
-#if EC_MAX_NUM_DEVICES > 1
-        datagram_pair_wc = ec_datagram_pair_process(pair, wc_sum);
-#else
         ec_datagram_pair_process(pair, wc_sum);
-#endif
 
-#if EC_MAX_NUM_DEVICES > 1
-        if (ec_master_num_devices(domain->master) > 1) {
-            ec_datagram_t *main_datagram = &pair->datagrams[EC_DEVICE_MAIN];
-            uint32_t logical_datagram_address =
-                EC_READ_U32(main_datagram->address);
-            size_t datagram_size = main_datagram->data_size;
-
-#if DEBUG_REDUNDANCY
-            EC_MASTER_DBG(domain->master, 1, "dgram %s log=%u\n",
-                    main_datagram->name, logical_datagram_address);
-#endif
-
-            /* Redundancy: Go through FMMU configs to detect data changes. */
-            list_for_each_entry_from(fmmu, &domain->fmmu_configs, list) {
-                ec_datagram_t *backup_datagram =
-                    &pair->datagrams[EC_DEVICE_BACKUP];
-
-                if (fmmu->dir != EC_DIR_INPUT) {
-                    continue;
-                }
-
-                if (fmmu->logical_start_address >=
-                        logical_datagram_address + datagram_size) {
-                    // fmmu data contained in next datagram pair
-                    break;
-                }
-
-                datagram_offset =
-                    fmmu->logical_start_address - logical_datagram_address;
-
-#if DEBUG_REDUNDANCY
-                EC_MASTER_DBG(domain->master, 1,
-                        "input fmmu log=%u size=%u offset=%u\n",
-                        fmmu->logical_start_address, fmmu->data_size,
-                        datagram_offset);
-                if (domain->master->debug_level > 0) {
-                    ec_print_data(pair->send_buffer + datagram_offset,
-                            fmmu->data_size);
-                    ec_print_data(main_datagram->data + datagram_offset,
-                            fmmu->data_size);
-                    ec_print_data(backup_datagram->data + datagram_offset,
-                            fmmu->data_size);
-                }
-#endif
-
-                if (data_changed(pair->send_buffer, main_datagram,
-                            datagram_offset, fmmu->data_size)) {
-                    /* data changed on main link: no copying necessary. */
-#if DEBUG_REDUNDANCY
-                    EC_MASTER_DBG(domain->master, 1, "main changed\n");
-#endif
-                } else if (data_changed(pair->send_buffer, backup_datagram,
-                            datagram_offset, fmmu->data_size)) {
-                    /* data changed on backup link: copy to main memory. */
-#if DEBUG_REDUNDANCY
-                    EC_MASTER_DBG(domain->master, 1, "backup changed\n");
-#endif
-                    memcpy(main_datagram->data + datagram_offset,
-                            backup_datagram->data + datagram_offset,
-                            fmmu->data_size);
-                } else if (datagram_pair_wc ==
-                        pair->expected_working_counter) {
-                    /* no change, but WC complete: use main data. */
-#if DEBUG_REDUNDANCY
-                    EC_MASTER_DBG(domain->master, 1,
-                            "no change but complete\n");
-#endif
-                } else {
-                    /* no change and WC incomplete: mark WC as zero to avoid
-                     * data.dependent WC flickering. */
-                    datagram_pair_wc = 0;
-#if DEBUG_REDUNDANCY
-                    EC_MASTER_DBG(domain->master, 1,
-                            "no change and incomplete\n");
-#endif
-                }
-            }
-        }
-#endif // EC_MAX_NUM_DEVICES > 1
     }
 
-#if EC_MAX_NUM_DEVICES > 1
-    redundant_wc = 0;
-    for (dev_idx = EC_DEVICE_BACKUP;
-            dev_idx < ec_master_num_devices(domain->master); dev_idx++) {
-        redundant_wc += wc_sum[dev_idx];
-    }
-
-    redundancy = redundant_wc > 0;
-    if (redundancy != domain->redundancy_active) {
-        if (redundancy) {
-            EC_MASTER_WARN(domain->master,
-                    "Domain %u: Redundant link in use!\n",
-                    domain->index);
-        } else {
-            EC_MASTER_INFO(domain->master,
-                    "Domain %u: Redundant link unused again.\n",
-                    domain->index);
-        }
-        domain->redundancy_active = redundancy;
-    }
-#else
     domain->redundancy_active = 0;
+
+#ifdef AAAA
+st_end(1 );
+
+st_start(2);
 #endif
 
-    wc_change = 0;
+	wc_change = 0;
     wc_total = 0;
     for (dev_idx = EC_DEVICE_MAIN;
             dev_idx < ec_master_num_devices(domain->master); dev_idx++) {
@@ -594,6 +556,11 @@ void ecrt_domain_process(ec_domain_t *domain)
         }
         wc_total += wc_sum[dev_idx];
     }
+
+#ifdef AAAA
+st_end(2);
+st_start(3);
+#endif
 
     if (wc_change) {
         domain->working_counter_changes++;
@@ -612,24 +579,15 @@ void ecrt_domain_process(ec_domain_t *domain)
                     domain->working_counter_changes,
                     wc_total, domain->expected_working_counter);
         }
-#if EC_MAX_NUM_DEVICES > 1
-        if (ec_master_num_devices(domain->master) > 1) {
-            printk(" (");
-            for (dev_idx = EC_DEVICE_MAIN;
-                    dev_idx < ec_master_num_devices(domain->master);
-                    dev_idx++) {
-                printk("%u", domain->working_counter[dev_idx]);
-                if (dev_idx + 1 < ec_master_num_devices(domain->master)) {
-                    printk("+");
-                }
-            }
-            printk(")");
-        }
-#endif
-        printk(".\n");
+        dmm_prtk(".\n");
 
         domain->working_counter_changes = 0;
     }
+#ifdef AAAA
+st_end(3);
+#endif
+
+st_end(0);
 }
 
 /*****************************************************************************/

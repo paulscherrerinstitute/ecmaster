@@ -110,7 +110,7 @@
 
 		Jean-Jacques Michel - bug fix
 
-		Tobias Ringström - Rx interrupt status checking suggestion
+		Tobias Ringstrï¿½m - Rx interrupt status checking suggestion
 
 		Andrew Morton - Clear blocked signals, avoid
 		buffer overrun setting current->comm.
@@ -177,7 +177,7 @@
 
 #if RTL8139_DEBUG
 /* note: prints function name for you */
-#  define DPRINTK(fmt, args...) printk(KERN_DEBUG "%s: " fmt, __FUNCTION__ , ## args)
+#  define DPRINTK(fmt, args...) dmm_prtk(KERN_DEBUG "%s: " fmt, __FUNCTION__ , ## args)
 #else
 #  define DPRINTK(fmt, args...)
 #endif
@@ -187,7 +187,7 @@
 #else
 #  define assert(expr) \
         if(unlikely(!(expr))) {				        \
-        printk(KERN_ERR "Assertion failed! %s,%s,%s,line=%d\n",	\
+        dmm_prtk(KERN_ERR "Assertion failed! %s,%s,%s,line=%d\n",	\
         #expr,__FILE__,__FUNCTION__,__LINE__);		        \
         }
 #endif
@@ -995,7 +995,7 @@ static int __devinit rtl8139_init_one (struct pci_dev *pdev,
 	{
 		static int printed_version;
 		if (!printed_version++)
-			printk (KERN_INFO RTL8139_DRIVER_NAME "\n");
+			dmm_prtk (KERN_INFO RTL8139_DRIVER_NAME "\n");
 	}
 #endif
 
@@ -1080,7 +1080,7 @@ static int __devinit rtl8139_init_one (struct pci_dev *pdev,
 
 	pci_set_drvdata (pdev, dev);
 
-	printk (KERN_INFO "%s: %s at 0x%lx, "
+	dmm_prtk (KERN_INFO "%s: %s at 0x%lx, "
 		"%2.2x:%2.2x:%2.2x:%2.2x:%2.2x:%2.2x, "
 		"IRQ %d\n",
 		dev->name,
@@ -1091,7 +1091,7 @@ static int __devinit rtl8139_init_one (struct pci_dev *pdev,
 		dev->dev_addr[4], dev->dev_addr[5],
 		dev->irq);
 
-	printk (KERN_DEBUG "%s:  Identified 8139 chip type '%s'\n",
+	dmm_prtk (KERN_DEBUG "%s:  Identified 8139 chip type '%s'\n",
 		dev->name, rtl_chip_info[tp->chipset].name);
 
 	/* Find the connected MII xcvrs.
@@ -1105,13 +1105,13 @@ static int __devinit rtl8139_init_one (struct pci_dev *pdev,
 			if (mii_status != 0xffff  &&  mii_status != 0x0000) {
 				u16 advertising = mdio_read(dev, phy, 4);
 				tp->phys[phy_idx++] = phy;
-				printk(KERN_INFO "%s: MII transceiver %d status 0x%4.4x "
+				dmm_prtk(KERN_INFO "%s: MII transceiver %d status 0x%4.4x "
 					   "advertising %4.4x.\n",
 					   dev->name, phy, mii_status, advertising);
 			}
 		}
 		if (phy_idx == 0) {
-			printk(KERN_INFO "%s: No MII transceivers found!  Assuming SYM "
+			dmm_prtk(KERN_INFO "%s: No MII transceivers found!  Assuming SYM "
 				   "transceiver.\n",
 				   dev->name);
 			tp->phys[0] = 32;
@@ -1132,13 +1132,13 @@ static int __devinit rtl8139_init_one (struct pci_dev *pdev,
 	if (board_idx < MAX_UNITS  &&  full_duplex[board_idx] > 0)
 		tp->mii.full_duplex = full_duplex[board_idx];
 	if (tp->mii.full_duplex) {
-		printk(KERN_INFO "%s: Media type forced to Full Duplex.\n", dev->name);
+		dmm_prtk(KERN_INFO "%s: Media type forced to Full Duplex.\n", dev->name);
 		/* Changing the MII-advertised media because might prevent
 		   re-connection. */
 		tp->mii.force_media = 1;
 	}
 	if (tp->default_port) {
-		printk(KERN_INFO "  Forcing %dMbps %s-duplex operation.\n",
+		dmm_prtk(KERN_INFO "  Forcing %dMbps %s-duplex operation.\n",
 			   (option & 0x20 ? 100 : 10),
 			   (option & 0x10 ? "full" : "half"));
 		mdio_write(dev, tp->phys[0], 0,
@@ -1414,7 +1414,7 @@ static int rtl8139_open (struct net_device *dev)
 		netif_start_queue (dev);
 
 		if (netif_msg_ifup(tp))
-			printk(KERN_DEBUG "%s: rtl8139_open() ioaddr %#llx IRQ %d"
+			dmm_prtk(KERN_DEBUG "%s: rtl8139_open() ioaddr %#llx IRQ %d"
 					" GP Pins %2.2x %s-duplex.\n", dev->name,
 					(unsigned long long)pci_resource_start (tp->pci_dev, 1),
 					dev->irq, RTL_R8 (MediaStatus),
@@ -1646,14 +1646,14 @@ static inline void rtl8139_thread_iter (struct net_device *dev,
 			tp->mii.full_duplex = duplex;
 
 			if (mii_lpa) {
-				printk (KERN_INFO
+				dmm_prtk (KERN_INFO
 					"%s: Setting %s-duplex based on MII #%d link"
 					" partner ability of %4.4x.\n",
 					dev->name,
 					tp->mii.full_duplex ? "full" : "half",
 					tp->phys[0], mii_lpa);
 			} else {
-				printk(KERN_INFO"%s: media is unconnected, link down, or incompatible connection\n",
+				dmm_prtk(KERN_INFO"%s: media is unconnected, link down, or incompatible connection\n",
 				       dev->name);
 			}
 #if 0
@@ -1735,14 +1735,14 @@ static void rtl8139_tx_timeout_task (void *_data)
 	int i;
 	u8 tmp8;
 
-	printk (KERN_DEBUG "%s: Transmit timeout, status %2.2x %4.4x %4.4x "
+	dmm_prtk (KERN_DEBUG "%s: Transmit timeout, status %2.2x %4.4x %4.4x "
 		"media %2.2x.\n", dev->name, RTL_R8 (ChipCmd),
 		RTL_R16(IntrStatus), RTL_R16(IntrMask), RTL_R8(MediaStatus));
 	/* Emit info to figure out what went wrong. */
-	printk (KERN_DEBUG "%s: Tx queue start entry %ld  dirty entry %ld.\n",
+	dmm_prtk (KERN_DEBUG "%s: Tx queue start entry %ld  dirty entry %ld.\n",
 		dev->name, tp->cur_tx, tp->dirty_tx);
 	for (i = 0; i < NUM_TX_DESC; i++)
-		printk (KERN_DEBUG "%s:  Tx descriptor %d is %8.8lx.%s\n",
+		dmm_prtk (KERN_DEBUG "%s:  Tx descriptor %d is %8.8lx.%s\n",
 			dev->name, i, RTL_R32 (TxStatus0 + (i * 4)),
 			i == tp->dirty_tx % NUM_TX_DESC ?
 				" (queue head)" : "");
@@ -1837,7 +1837,7 @@ static int rtl8139_start_xmit (struct sk_buff *skb, struct net_device *dev)
 		spin_unlock_irqrestore(&tp->lock, flags);
 
 		if (netif_msg_tx_queued(tp))
-			printk (KERN_DEBUG "%s: Queued Tx packet size %u to slot %d.\n",
+			dmm_prtk (KERN_DEBUG "%s: Queued Tx packet size %u to slot %d.\n",
 					dev->name, len, entry);
 	}
 
@@ -1869,7 +1869,7 @@ static void rtl8139_tx_interrupt (struct net_device *dev,
 		if (txstatus & (TxOutOfWindow | TxAborted)) {
 			/* There was an major error, log it. */
 			if (netif_msg_tx_err(tp))
-				printk(KERN_DEBUG "%s: Transmit error, Tx status %8.8x.\n",
+				dmm_prtk(KERN_DEBUG "%s: Transmit error, Tx status %8.8x.\n",
 					dev->name, txstatus);
 			tp->stats.tx_errors++;
 			if (txstatus & TxAborted) {
@@ -1900,7 +1900,7 @@ static void rtl8139_tx_interrupt (struct net_device *dev,
 
 #ifndef RTL8139_NDEBUG
 	if (!tp->ecdev && tp->cur_tx - dirty_tx > NUM_TX_DESC) {
-		printk (KERN_ERR "%s: Out-of-sync dirty pointer, %ld vs. %ld.\n",
+		dmm_prtk (KERN_ERR "%s: Out-of-sync dirty pointer, %ld vs. %ld.\n",
 		        dev->name, dirty_tx, tp->cur_tx);
 		dirty_tx += NUM_TX_DESC;
 	}
@@ -1925,7 +1925,7 @@ static void rtl8139_rx_err (u32 rx_status, struct net_device *dev,
 #endif
 
 	if (netif_msg_rx_err (tp))
-		printk(KERN_DEBUG "%s: Ethernet frame had errors, status %8.8x.\n",
+		dmm_prtk(KERN_DEBUG "%s: Ethernet frame had errors, status %8.8x.\n",
 			dev->name, rx_status);
 	tp->stats.rx_errors++;
 	if (!(rx_status & RxStatusOK)) {
@@ -1963,7 +1963,7 @@ static void rtl8139_rx_err (u32 rx_status, struct net_device *dev,
 			break;
 	}
 	if (tmp_work <= 0)
-		printk (KERN_WARNING PFX "rx stop wait too long\n");
+		dmm_prtk (KERN_WARNING PFX "rx stop wait too long\n");
 	/* restart receive */
 	tmp_work = 200;
 	while (--tmp_work > 0) {
@@ -1974,7 +1974,7 @@ static void rtl8139_rx_err (u32 rx_status, struct net_device *dev,
 			break;
 	}
 	if (tmp_work <= 0)
-		printk (KERN_WARNING PFX "tx/rx enable wait too long\n");
+		dmm_prtk (KERN_WARNING PFX "tx/rx enable wait too long\n");
 
 	/* and reinitialize all rx related registers */
 	RTL_W8_F (Cfg9346, Cfg9346_Unlock);
@@ -2061,7 +2061,7 @@ static int rtl8139_rx(struct net_device *dev, struct rtl8139_private *tp,
 
 		if (!tp->ecdev) {
 			if (netif_msg_rx_status(tp))
-				printk(KERN_DEBUG "%s:  rtl8139_rx() status %4.4x, size %4.4x,"
+				dmm_prtk(KERN_DEBUG "%s:  rtl8139_rx() status %4.4x, size %4.4x,"
 				       " cur %4.4x.\n", dev->name, rx_status,
 				       rx_size, cur_rx);
 		}
@@ -2070,9 +2070,9 @@ static int rtl8139_rx(struct net_device *dev, struct rtl8139_private *tp,
 			int i;
 			DPRINTK ("%s: Frame contents ", dev->name);
 			for (i = 0; i < 70; i++)
-				printk (" %2.2x",
+				dmm_prtk (" %2.2x",
 					rx_ring[ring_offset + i]);
-			printk (".\n");
+			dmm_prtk (".\n");
 		}
 #endif
 
@@ -2089,7 +2089,7 @@ static int rtl8139_rx(struct net_device *dev, struct rtl8139_private *tp,
 				goto no_early_rx;
 			}
 			if (netif_msg_intr(tp)) {
-				printk(KERN_DEBUG "%s: fifo copy in progress.",
+				dmm_prtk(KERN_DEBUG "%s: fifo copy in progress.",
 				       dev->name);
 			}
 			tp->xstats.early_rx++;
@@ -2143,7 +2143,7 @@ no_early_rx:
 				netif_receive_skb (skb);
 			} else {
 				if (net_ratelimit())
-					printk(KERN_WARNING
+					dmm_prtk(KERN_WARNING
 							"%s: Memory squeeze, dropping packet.\n",
 							dev->name);
 				tp->stats.rx_dropped++;
@@ -2215,7 +2215,7 @@ static void rtl8139_weird_interrupt (struct net_device *dev,
 		pci_read_config_word (tp->pci_dev, PCI_STATUS, &pci_cmd_status);
 		pci_write_config_word (tp->pci_dev, PCI_STATUS, pci_cmd_status);
 
-		printk (KERN_ERR "%s: PCI Bus error %4.4x.\n",
+		dmm_prtk (KERN_ERR "%s: PCI Bus error %4.4x.\n",
 			dev->name, pci_cmd_status);
 	}
 }
@@ -2375,7 +2375,7 @@ static int rtl8139_close (struct net_device *dev)
 		rtl8139_stop_thread(tp);
 
 		if (netif_msg_ifdown(tp))
-			printk(KERN_DEBUG "%s: Shutting down ethercard, status was 0x%4.4x.\n",
+			dmm_prtk(KERN_DEBUG "%s: Shutting down ethercard, status was 0x%4.4x.\n",
 			       dev->name, RTL_R16 (IntrStatus));
 
 		spin_lock_irqsave (&tp->lock, flags);
@@ -2654,7 +2654,7 @@ static void __set_rx_mode (struct net_device *dev)
 	/* Note: do not reorder, GCC is clever about common statements. */
 	if (dev->flags & IFF_PROMISC) {
 		/* Unconditionally log net taps. */
-		printk (KERN_NOTICE "%s: Promiscuous mode enabled.\n",
+		dmm_prtk (KERN_NOTICE "%s: Promiscuous mode enabled.\n",
 			dev->name);
 		rx_mode =
 		    AcceptBroadcast | AcceptMulticast | AcceptMyPhys |
@@ -2768,7 +2768,7 @@ static int __init rtl8139_init_module (void)
 	 * even if no 8139 board is found.
 	 */
 #ifdef MODULE
-	printk (KERN_INFO RTL8139_DRIVER_NAME "\n");
+	dmm_prtk (KERN_INFO RTL8139_DRIVER_NAME "\n");
 #endif
 
 	return pci_module_init (&rtl8139_pci_driver);
